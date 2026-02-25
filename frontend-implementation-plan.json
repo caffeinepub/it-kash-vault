@@ -1,0 +1,59 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Add 67 Clicker game based on the Six Seven meme",
+  "requirements": [
+    {
+      "id": "REQ-32",
+      "summary": "Build an in-browser '67 Clicker' game using React and canvas, themed around the 'six seven' meme with click scoring, combo multipliers, localStorage best score persistence, and dark neon arcade styling",
+      "acceptanceCriteria": [
+        "A canvas-based clicker game component (SixSevenGame.tsx) is created in frontend/src/components/games/",
+        "A large clickable '67' / six-seven meme character is rendered in the center of the canvas",
+        "Each click increments the score and triggers a '67!' floating text effect with a flash/shake animation",
+        "A combo multiplier increases score when clicks occur within a short time window and resets after ~1 second of inactivity",
+        "Current score and best score are both displayed prominently; best score persists in localStorage",
+        "The character shows a pulsing idle animation when not being clicked",
+        "The game uses the platform's dark neon arcade theme: near-black background, neon accent colors, Orbitron typography, neon glow effects"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/games/SixSevenGame.tsx",
+          "operation": "create",
+          "description": "Create a canvas-based clicker game component that renders a large '67' character in the center with click detection. Implement score tracking with each click incrementing the score and triggering a '67!' floating text effect with flash/shake animation. Add combo multiplier logic that increases when clicks occur within a short time window (~500ms) and resets after ~1 second of inactivity. Display current score and best score prominently using Orbitron typography with neon glow effects. Persist best score in localStorage using a key like 'sixSevenBestScore'. Implement a pulsing idle animation on the '67' character when not being clicked. Style with the platform's dark neon arcade theme: near-black background (#0a0a0f), neon accent colors (electric yellow #ffff00, hot-pink #ff10f0), and neon glow effects consistent with existing games like TungTungGame.tsx. Use canvas for rendering the character, animations, and floating score effects."
+        }
+      ]
+    },
+    {
+      "id": "REQ-33",
+      "summary": "Register the 67 Clicker game in the game routing map in GamePage.tsx so navigating to its slug renders SixSevenGame and increments play count",
+      "acceptanceCriteria": [
+        "GamePage.tsx includes an entry in its game routing map that maps the slug for '67 Clicker' to the SixSevenGame component",
+        "Navigating to /game/67-clicker (or equivalent slug) renders the SixSevenGame component",
+        "The play count is incremented via the backend on mount"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/GamePage.tsx",
+          "operation": "modify",
+          "description": "Add an entry to the gameComponents mapping object that maps the slug '67-clicker' to the SixSevenGame component. Import SixSevenGame from '../components/games/SixSevenGame'. The existing GamePage logic will automatically handle rendering the component when the URL matches /game/67-clicker and will increment the play count via the useIncrementPlayCount mutation on mount, matching the pattern used for other games."
+        }
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "summary": "Add the 67 Clicker game to the seed games list in seedGames.ts with title, description, category 'Clicker', and thumbnail filename so it appears in the game library",
+      "acceptanceCriteria": [
+        "seedGames.ts includes an entry for '67 Clicker' with title, description, category 'Clicker', and thumbnail filename",
+        "The 67 Clicker game card appears in the game library on the homepage after seeding",
+        "The seed function correctly adds the game to the backend if it is missing"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/seedGames.ts",
+          "operation": "modify",
+          "description": "Add a new game object to the seedGames array with title '67 Clicker', a short description referencing the six seven meme (e.g., 'Click the iconic six seven meme to rack up points! Build combos with rapid clicks and chase the ultimate high score.'), category 'Clicker', and thumbnail 'frontend/public/assets/generated/67-clicker.dim_256x256.png'. The existing seedGames function will automatically add this game to the backend via the addGame mutation if it doesn't already exist, making it appear in the game library on the homepage."
+        }
+      ]
+    }
+  ]
+}

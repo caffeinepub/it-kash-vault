@@ -1,0 +1,333 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 23,
+  "summary": "A web-based gaming platform similar to Geometry Dash (GD) where users can play lots of games.",
+  "architectural_notes": [
+    "Web-based gaming platform inspired by Geometry Dash; should support multiple embedded/playable browser games"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Neon-styled '67' number illustration with a meme-inspired bold comedic face, dark background with electric yellow and hot-pink neon glow accents (67-clicker.dim_256x256.png)",
+  "existing_features": [
+    {
+      "id": "feature-build-an-in-browser-geometry-dash-inspired-platformer-rhythm-game-using-react-three-fiber-three-js-the-game-must-feature-a-player-cube-that-auto-scrolls-to-the-right-procedurally-generated-spike-and-platform-obstacles-jump-mechanic-on-click-spacebar-increasing-speed-over-time-and-a-score-counter-based-on-distance-traveled-display-a-game-over-screen-on-collision-with-a-restart-option",
+      "title": "Build an in-browser Geometry Dash-inspired platformer/rhythm game using React Three Fiber (Three.js). The game must feature a player cube that auto-scrolls to the right, procedurally generated spike and platform obstacles, jump mechanic on click/spacebar, increasing speed over time, and a score counter based on distance traveled. Display a game-over screen on collision with a restart option.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-snake-game-using-react-and-canvas-svg-the-player-controls-a-snake-that-grows-when-it-eats-food-and-the-game-ends-when-the-snake-collides-with-a-wall-or-itself-show-a-score-and-high-score-and-a-restart-button-on-game-over",
+      "title": "Build an in-browser Snake game using React and canvas/SVG. The player controls a snake that grows when it eats food, and the game ends when the snake collides with a wall or itself. Show a score and high score, and a restart button on game over.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-flappy-bird-style-game-using-react-three-fiber-a-bird-falls-under-gravity-and-the-player-taps-clicks-to-flap-randomly-spaced-pipe-pairs-scroll-left-and-the-score-increments-for-each-pipe-pair-cleared-show-game-over-and-restart-on-collision",
+      "title": "Build an in-browser Flappy Bird-style game using React Three Fiber. A bird falls under gravity and the player taps/clicks to flap. Randomly spaced pipe pairs scroll left, and the score increments for each pipe pair cleared. Show game-over and restart on collision.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-breakout-arkanoid-style-game-using-react-and-canvas-a-paddle-controlled-by-mouse-or-left-right-keys-bounces-a-ball-to-break-brick-rows-bricks-disappear-on-hit-and-the-game-ends-when-all-bricks-are-cleared-win-or-the-ball-falls-below-the-paddle-lose-show-score-and-restart",
+      "title": "Build an in-browser Breakout/Arkanoid-style game using React and canvas. A paddle (controlled by mouse or left/right keys) bounces a ball to break brick rows. Bricks disappear on hit, and the game ends when all bricks are cleared (win) or the ball falls below the paddle (lose). Show score and restart.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-2048-style-sliding-puzzle-game-using-react-tiles-with-numbers-merge-when-equal-tiles-slide-into-each-other-the-game-ends-when-no-valid-moves-remain-show-current-score-best-score-and-a-new-game-button",
+      "title": "Build an in-browser 2048-style sliding puzzle game using React. Tiles with numbers merge when equal tiles slide into each other. The game ends when no valid moves remain. Show current score, best score, and a new game button.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-homepage-game-library-page-that-displays-all-games-from-the-backend-as-cards-each-card-shows-the-game-thumbnail-title-category-badge-and-play-count-clicking-a-card-navigates-to-the-game-s-play-page-and-triggers-incrementplaycount-on-the-backend",
+      "title": "Create a homepage / game library page that displays all games from the backend as cards. Each card shows the game thumbnail, title, category badge, and play count. Clicking a card navigates to the game's play page and triggers incrementPlayCount on the backend.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-cohesive-dark-neon-arcade-visual-theme-across-all-pages-use-a-near-black-background-vibrant-neon-accent-colors-e-g-neon-green-electric-yellow-hot-pink-pixel-inspired-or-bold-geometric-typography-glowing-card-effects-on-hover-and-a-top-navigation-bar-with-the-platform-logo-and-site-title-enforce-the-theme-consistently-across-the-game-library-game-pages-and-ui-chrome",
+      "title": "Apply a cohesive dark neon arcade visual theme across all pages. Use a near-black background, vibrant neon accent colors (e.g., neon green, electric yellow, hot pink), pixel-inspired or bold geometric typography, glowing card effects on hover, and a top navigation bar with the platform logo and site title. Enforce the theme consistently across the game library, game pages, and UI chrome.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-homepage-hero-section-prominently-feature-the-geometry-dash-inspired-game-gd-runner-as-the-flagship-title-with-a-large-banner-or-featured-card-that-includes-the-game-thumbnail-title-a-short-description-and-a-clearly-visible-play-now-button-that-navigates-to-the-gd-runner-game-page-and-increments-its-play-count",
+      "title": "On the homepage hero section, prominently feature the Geometry Dash-inspired game (GD Runner) as the flagship title with a large banner or featured card that includes the game thumbnail, title, a short description, and a clearly visible 'Play Now' button that navigates to the GD Runner game page and increments its play count.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rename-all-user-facing-branding-from-arcadevault-and-any-variants-like-arcade-vault-to-kash-s-vault-across-the-entire-frontend-including-the-navigation-component-logo-title-the-footer-component-branding-the-html-page-title-in-index-html-and-any-other-visible-text-that-references-the-platform-name",
+      "title": "Rename all user-facing branding from 'ArcadeVault' (and any variants like 'Arcade Vault') to \"Kash's Vault\" across the entire frontend, including the Navigation component logo/title, the Footer component branding, the HTML page title in index.html, and any other visible text that references the platform name.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rename-all-user-facing-branding-from-kash-s-vault-to-kash-is-fart-across-the-entire-frontend-including-the-navigation-component-logo-title-the-footer-component-branding-the-html-page-title-in-index-html-and-any-other-visible-text-that-references-the-platform-name",
+      "title": "Rename all user-facing branding from \"Kash's Vault\" to \"Kash is Fart\" across the entire frontend, including the Navigation component logo/title, the Footer component branding, the HTML page title in index.html, and any other visible text that references the platform name.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-in-browser-tetris-game-using-react-and-canvas-falling-tetrominoes-are-controlled-by-keyboard-left-right-down-arrows-to-move-up-arrow-or-z-to-rotate-spacebar-to-hard-drop-lines-are-cleared-when-fully-filled-show-current-score-level-and-next-piece-preview-display-a-game-over-screen-with-a-restart-button-when-the-stack-reaches-the-top",
+      "title": "Add a new in-browser Tetris game using React and canvas. Falling tetrominoes are controlled by keyboard (left/right/down arrows to move, up arrow or Z to rotate, spacebar to hard drop). Lines are cleared when fully filled. Show current score, level, and next piece preview. Display a game-over screen with a restart button when the stack reaches the top.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-in-browser-pac-man-style-maze-game-using-react-and-canvas-the-player-navigates-a-maze-using-arrow-keys-to-eat-dots-and-avoid-ghost-enemies-show-score-and-lives-display-a-game-over-screen-with-a-restart-button-when-all-lives-are-lost-and-a-win-screen-when-all-dots-are-collected",
+      "title": "Add a new in-browser Pac-Man-style maze game using React and canvas. The player navigates a maze using arrow keys to eat dots and avoid ghost enemies. Show score and lives. Display a game-over screen with a restart button when all lives are lost, and a win screen when all dots are collected.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-in-browser-space-invaders-style-shooting-game-using-react-and-canvas-the-player-controls-a-spaceship-at-the-bottom-of-the-screen-using-left-right-arrow-keys-and-fires-bullets-with-the-spacebar-waves-of-alien-enemies-march-left-and-right-and-descend-toward-the-player-show-score-and-lives-display-game-over-on-losing-all-lives-and-a-win-screen-on-clearing-all-enemies-both-with-a-restart-option",
+      "title": "Add a new in-browser Space Invaders-style shooting game using React and canvas. The player controls a spaceship at the bottom of the screen using left/right arrow keys and fires bullets with the spacebar. Waves of alien enemies march left and right and descend toward the player. Show score and lives. Display game-over on losing all lives and a win screen on clearing all enemies, both with a restart option.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-swords-and-sandals-style-gladiator-combat-game-using-react-and-canvas-the-player-controls-a-gladiator-fighter-on-the-left-side-of-a-arena-the-game-features-turn-based-or-real-time-combat-against-an-ai-opponent-gladiator-on-the-right-the-player-can-choose-from-actions-such-as-attack-block-and-use-a-special-move-using-on-screen-buttons-or-keyboard-shortcuts-each-gladiator-has-a-health-bar-displayed-above-them-attacks-deal-randomized-damage-blocks-reduce-incoming-damage-show-the-current-round-number-display-a-victory-screen-when-the-enemy-is-defeated-and-a-defeat-screen-when-the-player-s-health-reaches-zero-both-with-a-play-again-restart-button",
+      "title": "Build an in-browser Swords and Sandals-style gladiator combat game using React and canvas. The player controls a gladiator fighter on the left side of a arena. The game features turn-based or real-time combat against an AI opponent gladiator on the right. The player can choose from actions such as Attack, Block, and use a Special Move using on-screen buttons or keyboard shortcuts. Each gladiator has a health bar displayed above them. Attacks deal randomized damage, blocks reduce incoming damage. Show the current round number. Display a victory screen when the enemy is defeated and a defeat screen when the player's health reaches zero, both with a 'Play Again' restart button.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-new-swords-and-sandals-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-so-that-navigating-to-its-game-page-renders-the-new-gladiator-game-component",
+      "title": "Register the new Swords and Sandals game in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to its game page renders the new gladiator game component.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-swords-and-sandals-gladiator-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-a-title-description-category-e-g-rpg-and-thumbnail-filename-so-it-appears-in-the-game-library-on-the-homepage",
+      "title": "Add the Swords and Sandals gladiator game to the seed games list in frontend/src/lib/seedGames.ts with a title, description, category (e.g., 'RPG'), and thumbnail filename so it appears in the game library on the homepage.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-among-us-style-social-deduction-game-using-react-and-canvas-the-game-is-single-player-against-ai-crewmates-and-impostors-the-player-is-assigned-a-role-crewmate-or-impostor-at-the-start-the-map-is-a-top-down-view-of-a-spaceship-with-multiple-rooms-connected-by-corridors-the-player-character-moves-using-wasd-or-arrow-keys-as-a-crewmate-the-player-completes-mini-tasks-e-g-click-a-panel-to-fill-a-progress-bar-in-various-rooms-and-must-call-an-emergency-meeting-or-report-a-body-to-vote-out-the-impostor-as-an-impostor-the-player-must-eliminate-crewmates-by-pressing-a-kill-button-when-near-them-and-sabotage-tasks-ai-players-roam-the-map-complete-tasks-or-eliminate-as-appropriate-to-their-role-include-a-voting-phase-triggered-by-emergency-meeting-or-body-report-where-the-player-votes-to-eject-a-suspect-show-a-win-screen-when-all-tasks-are-complete-or-the-impostor-is-ejected-crewmate-win-or-when-the-impostor-eliminates-enough-crewmates-impostor-win-display-a-restart-button-on-the-end-screen-style-the-game-with-the-neon-arcade-theme-consistent-with-the-rest-of-the-platform",
+      "title": "Build an in-browser Among Us-style social deduction game using React and canvas. The game is single-player against AI crewmates and impostors. The player is assigned a role (Crewmate or Impostor) at the start. The map is a top-down view of a spaceship with multiple rooms connected by corridors. The player character moves using WASD or arrow keys. As a Crewmate, the player completes mini-tasks (e.g., click a panel to fill a progress bar) in various rooms and must call an Emergency Meeting or report a body to vote out the Impostor. As an Impostor, the player must eliminate crewmates by pressing a Kill button when near them and sabotage tasks. AI players roam the map, complete tasks or eliminate as appropriate to their role. Include a voting phase triggered by Emergency Meeting or body report where the player votes to eject a suspect. Show a win screen when all tasks are complete or the Impostor is ejected (Crewmate win) or when the Impostor eliminates enough crewmates (Impostor win). Display a restart button on the end screen. Style the game with the neon arcade theme consistent with the rest of the platform.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-among-us-style-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-so-that-navigating-to-its-game-page-renders-the-new-game-component",
+      "title": "Register the Among Us-style game in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to its game page renders the new game component.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-among-us-style-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-a-title-e-g-among-us-a-short-description-category-e-g-social-and-a-thumbnail-filename-so-it-appears-in-the-game-library-on-the-homepage",
+      "title": "Add the Among Us-style game to the seed games list in frontend/src/lib/seedGames.ts with a title (e.g., 'Among Us'), a short description, category (e.g., 'Social'), and a thumbnail filename so it appears in the game library on the homepage.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rebuild-the-entire-platform-from-scratch-preserving-all-existing-features-the-game-library-homepage-with-hero-section-featuring-gd-runner-the-dark-neon-arcade-visual-theme-with-orbitron-rajdhani-fonts-and-neon-glow-effects-the-navigation-bar-and-footer-branded-kash-is-fart-the-backend-actor-with-game-catalog-crud-operations-add-delete-get-by-title-category-increment-play-count-get-most-popular-and-all-10-playable-games-gd-runner-snake-flappy-bird-breakout-2048-tetris-pac-man-space-invaders-swords-sandals-among-us-with-their-routing-in-gamepage-tsx-and-seed-entries-in-seedgames-ts",
+      "title": "Rebuild the entire platform from scratch, preserving all existing features: the game library homepage with hero section featuring GD Runner, the dark neon arcade visual theme with Orbitron/Rajdhani fonts and neon glow effects, the Navigation bar and Footer branded 'KASH IS FART', the backend actor with game catalog CRUD operations (add, delete, get by title/category, increment play count, get most popular), and all 10 playable games (GD Runner, Snake, Flappy Bird, Breakout, 2048, Tetris, Pac-Man, Space Invaders, Swords & Sandals, Among Us) with their routing in GamePage.tsx and seed entries in seedGames.ts.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-tung-tung-tung-sahur-clicker-game-using-react-and-canvas-the-player-clicks-or-taps-a-large-drum-wooden-stick-character-in-the-center-of-the-screen-to-score-points-each-click-produces-a-tung-hit-effect-with-a-visual-flash-shake-animation-and-a-score-increment-include-a-combo-multiplier-that-increases-when-the-player-clicks-rapidly-within-a-short-time-window-and-resets-after-a-pause-display-the-current-score-prominently-and-a-best-score-show-a-pulsing-idle-animation-on-the-character-when-not-being-clicked-style-the-game-with-the-dark-neon-arcade-theme-consistent-with-the-rest-of-the-platform-using-neon-glow-effects-and-bold-orbitron-typography",
+      "title": "Build an in-browser 'Tung Tung Tung Sahur' clicker game using React and canvas. The player clicks (or taps) a large drum/wooden stick character in the center of the screen to score points. Each click produces a 'TUNG!' hit effect with a visual flash/shake animation and a score increment. Include a combo multiplier that increases when the player clicks rapidly (within a short time window) and resets after a pause. Display the current score prominently and a best score. Show a pulsing idle animation on the character when not being clicked. Style the game with the dark neon arcade theme consistent with the rest of the platform, using neon glow effects and bold Orbitron typography.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-tung-tung-tung-sahur-clicker-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-so-that-navigating-to-its-game-page-by-its-seeded-title-slug-renders-the-new-clicker-game-component",
+      "title": "Register the Tung Tung Tung Sahur clicker game in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to its game page (by its seeded title slug) renders the new clicker game component.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-tung-tung-tung-sahur-clicker-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-a-title-e-g-tung-tung-tung-a-short-description-category-clicker-and-a-thumbnail-filename-so-it-appears-in-the-game-library-on-the-homepage",
+      "title": "Add the Tung Tung Tung Sahur clicker game to the seed games list in frontend/src/lib/seedGames.ts with a title (e.g., 'Tung Tung Tung'), a short description, category 'Clicker', and a thumbnail filename so it appears in the game library on the homepage.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rebuild-the-entire-platform-from-scratch-preserving-all-existing-features-the-game-library-homepage-with-hero-section-featuring-gd-runner-the-dark-neon-arcade-visual-theme-with-orbitron-rajdhani-fonts-and-neon-glow-effects-the-navigation-bar-and-footer-branded-kash-is-fart-and-the-backend-actor-with-game-catalog-crud-operations-add-delete-get-by-title-category-increment-play-count-get-most-popular",
+      "title": "Rebuild the entire platform from scratch, preserving all existing features: the game library homepage with hero section featuring GD Runner, the dark neon arcade visual theme with Orbitron/Rajdhani fonts and neon glow effects, the Navigation bar and Footer branded 'KASH IS FART', and the backend actor with game catalog CRUD operations (add, delete, get by title/category, increment play count, get most popular).",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rebuild-all-11-playable-games-gd-runner-snake-flappy-bird-breakout-2048-tetris-pac-man-space-invaders-swords-sandals-among-us-and-tung-tung-tung-as-individual-game-components-with-their-full-gameplay-mechanics-intact",
+      "title": "Rebuild all 11 playable games (GD Runner, Snake, Flappy Bird, Breakout, 2048, Tetris, Pac-Man, Space Invaders, Swords & Sandals, Among Us, and Tung Tung Tung) as individual game components with their full gameplay mechanics intact.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-all-11-games-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-so-that-navigating-to-each-game-s-page-by-its-title-slug-renders-the-correct-game-component-increment-play-count-on-mount-for-each-game-page",
+      "title": "Register all 11 games in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to each game's page by its title slug renders the correct game component. Increment play count on mount for each game page.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-populate-frontend-src-lib-seedgames-ts-with-seed-entries-for-all-11-games-gd-runner-snake-flappy-bird-breakout-2048-tetris-pac-man-space-invaders-swords-sandals-among-us-tung-tung-tung-each-with-a-title-short-description-category-and-thumbnail-filename-the-seed-function-must-add-any-missing-games-to-the-backend-on-first-load",
+      "title": "Populate frontend/src/lib/seedGames.ts with seed entries for all 11 games (GD Runner, Snake, Flappy Bird, Breakout, 2048, Tetris, Pac-Man, Space Invaders, Swords & Sandals, Among Us, Tung Tung Tung), each with a title, short description, category, and thumbnail filename. The seed function must add any missing games to the backend on first load.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-block-blast-style-puzzle-game-using-react-and-canvas-the-player-is-presented-with-a-grid-e-g-8-8-and-a-set-of-block-pieces-polyomino-shapes-shown-in-a-tray-at-the-bottom-the-player-drags-or-clicks-to-place-pieces-onto-the-grid-when-an-entire-row-or-column-is-filled-it-clears-and-awards-points-no-rotation-is-needed-the-game-ends-when-none-of-the-available-pieces-in-the-tray-can-be-placed-anywhere-on-the-grid-show-current-score-and-best-score-persisted-in-localstorage-display-a-game-over-screen-with-a-play-again-restart-button-style-the-game-with-the-dark-neon-arcade-theme-consistent-with-the-rest-of-the-platform-using-neon-glow-effects-and-bold-orbitron-typography",
+      "title": "Build an in-browser Block Blast-style puzzle game using React and canvas. The player is presented with a grid (e.g., 8×8) and a set of block pieces (polyomino shapes) shown in a tray at the bottom. The player drags or clicks to place pieces onto the grid. When an entire row or column is filled, it clears and awards points. No rotation is needed. The game ends when none of the available pieces in the tray can be placed anywhere on the grid. Show current score and best score (persisted in localStorage). Display a game-over screen with a 'Play Again' restart button. Style the game with the dark neon arcade theme consistent with the rest of the platform, using neon glow effects and bold Orbitron typography.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-block-blast-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-so-that-navigating-to-its-game-page-by-its-seeded-title-slug-renders-the-new-blockblastgame-component-and-increments-the-play-count-on-mount",
+      "title": "Register the Block Blast game in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to its game page by its seeded title slug renders the new BlockBlastGame component and increments the play count on mount.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-block-blast-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-a-title-e-g-block-blast-a-short-description-category-puzzle-and-a-thumbnail-filename-so-it-appears-in-the-game-library-on-the-homepage",
+      "title": "Add the Block Blast game to the seed games list in frontend/src/lib/seedGames.ts with a title (e.g., 'Block Blast'), a short description, category 'Puzzle', and a thumbnail filename so it appears in the game library on the homepage.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-67-clicker-game-using-react-and-canvas-themed-around-the-six-seven-meme-the-player-clicks-or-taps-a-large-central-character-image-representing-the-six-seven-meme-to-score-points-each-click-produces-a-67-hit-effect-with-a-visual-flash-shake-animation-and-a-score-increment-include-a-combo-multiplier-that-increases-when-the-player-clicks-rapidly-within-a-short-time-window-and-resets-after-a-pause-display-the-current-score-prominently-and-a-best-score-persisted-in-localstorage-show-a-pulsing-idle-animation-on-the-character-when-not-being-clicked-style-the-game-with-the-dark-neon-arcade-theme-consistent-with-the-rest-of-the-platform-using-neon-glow-effects-and-bold-orbitron-typography",
+      "title": "Build an in-browser '67 Clicker' game using React and canvas, themed around the 'six seven' meme. The player clicks (or taps) a large central character/image representing the 'six seven' meme to score points. Each click produces a '67!' hit effect with a visual flash/shake animation and a score increment. Include a combo multiplier that increases when the player clicks rapidly (within a short time window) and resets after a pause. Display the current score prominently and a best score (persisted in localStorage). Show a pulsing idle animation on the character when not being clicked. Style the game with the dark neon arcade theme consistent with the rest of the platform, using neon glow effects and bold Orbitron typography.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-67-clicker-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-so-that-navigating-to-its-game-page-by-its-seeded-title-slug-e-g-67-clicker-renders-the-sixsevengame-component-and-increments-the-play-count-on-mount",
+      "title": "Register the 67 Clicker game in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to its game page by its seeded title slug (e.g., '67-clicker') renders the SixSevenGame component and increments the play count on mount.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-67-clicker-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-title-67-clicker-a-short-description-referencing-the-six-seven-meme-category-clicker-and-a-thumbnail-filename-e-g-67-clicker-png-so-it-appears-in-the-game-library-on-the-homepage",
+      "title": "Add the 67 Clicker game to the seed games list in frontend/src/lib/seedGames.ts with title '67 Clicker', a short description referencing the six seven meme, category 'Clicker', and a thumbnail filename (e.g., '67-clicker.png'), so it appears in the game library on the homepage.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Game library / browse page listing multiple playable games",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "In-browser game playback (games playable directly on the site)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Create a backend actor that stores a catalog of games, each with a title, description, genre/category, thumbnail filename, and play count. Expose query functions to list all games, filter by category, and increment play count for a game.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add a Swords and Sandals-style game (gladiator/RPG combat game)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add an Among Us-style online multiplayer game",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add a 'Tung Tung Tung' clicker game",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add a Block Blast-style puzzle game (drop blocks to fill and clear rows/columns)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Add a '67 Clicker' game based on the 'six seven' meme, similar to the Tung Tung Tung clicker style",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "2d",
+  "projectName": "Kash is Fart",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

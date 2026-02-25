@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: oklch(0.08 0.01 260);
+    --foreground: oklch(0.95 0.02 200);
+    --card: oklch(0.11 0.015 260);
+    --card-foreground: oklch(0.95 0.02 200);
+    --popover: oklch(0.11 0.015 260);
+    --popover-foreground: oklch(0.95 0.02 200);
+    --primary: oklch(0.75 0.22 165);
+    --primary-foreground: oklch(0.08 0.01 260);
+    --secondary: oklch(0.65 0.25 320);
+    --secondary-foreground: oklch(0.08 0.01 260);
+    --muted: oklch(0.18 0.02 260);
+    --muted-foreground: oklch(0.6 0.05 260);
+    --accent: oklch(0.7 0.22 290);
+    --accent-foreground: oklch(0.08 0.01 260);
+    --destructive: oklch(0.6 0.22 25);
+    --destructive-foreground: oklch(0.95 0.02 200);
+    --border: oklch(0.22 0.03 260);
+    --input: oklch(0.18 0.02 260);
+    --ring: oklch(0.75 0.22 165);
+    --radius: 0.5rem;
+    --success: oklch(0.72 0.2 145);
+    --warning: oklch(0.82 0.18 85);
+    --neon-green: oklch(0.82 0.22 145);
+    --neon-pink: oklch(0.72 0.28 340);
+    --neon-cyan: oklch(0.82 0.18 200);
+    --neon-purple: oklch(0.68 0.25 290);
+    --neon-yellow: oklch(0.88 0.2 95);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 400;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  .neon-text-green {
+    color: var(--neon-green);
+    text-shadow: 0 0 8px oklch(0.82 0.22 145 / 0.8), 0 0 20px oklch(0.82 0.22 145 / 0.5), 0 0 40px oklch(0.82 0.22 145 / 0.3);
+  }
+
+  .neon-text-pink {
+    color: var(--neon-pink);
+    text-shadow: 0 0 8px oklch(0.72 0.28 340 / 0.8), 0 0 20px oklch(0.72 0.28 340 / 0.5), 0 0 40px oklch(0.72 0.28 340 / 0.3);
+  }
+
+  .neon-text-cyan {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px oklch(0.82 0.18 200 / 0.8), 0 0 20px oklch(0.82 0.18 200 / 0.5), 0 0 40px oklch(0.82 0.18 200 / 0.3);
+  }
+
+  .neon-text-purple {
+    color: var(--neon-purple);
+    text-shadow: 0 0 8px oklch(0.68 0.25 290 / 0.8), 0 0 20px oklch(0.68 0.25 290 / 0.5), 0 0 40px oklch(0.68 0.25 290 / 0.3);
+  }
+
+  .neon-border-green {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 8px oklch(0.82 0.22 145 / 0.6), inset 0 0 8px oklch(0.82 0.22 145 / 0.1);
+  }
+
+  .neon-border-pink {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 8px oklch(0.72 0.28 340 / 0.6), inset 0 0 8px oklch(0.72 0.28 340 / 0.1);
+  }
+
+  .neon-glow-green {
+    box-shadow: 0 0 15px oklch(0.82 0.22 145 / 0.5), 0 0 30px oklch(0.82 0.22 145 / 0.3), 0 0 60px oklch(0.82 0.22 145 / 0.15);
+  }
+
+  .neon-glow-pink {
+    box-shadow: 0 0 15px oklch(0.72 0.28 340 / 0.5), 0 0 30px oklch(0.72 0.28 340 / 0.3), 0 0 60px oklch(0.72 0.28 340 / 0.15);
+  }
+
+  .neon-glow-cyan {
+    box-shadow: 0 0 15px oklch(0.82 0.18 200 / 0.5), 0 0 30px oklch(0.82 0.18 200 / 0.3), 0 0 60px oklch(0.82 0.18 200 / 0.15);
+  }
+
+  .neon-glow-purple {
+    box-shadow: 0 0 15px oklch(0.68 0.25 290 / 0.5), 0 0 30px oklch(0.68 0.25 290 / 0.3), 0 0 60px oklch(0.68 0.25 290 / 0.15);
+  }
+
+  .scanlines {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scanlines::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      oklch(0 0 0 / 0.03) 2px,
+      oklch(0 0 0 / 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(oklch(0.82 0.22 145 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.82 0.22 145 / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .font-orbitron {
+    font-family: 'Orbitron', monospace;
+  }
+
+  .font-rajdhani {
+    font-family: 'Rajdhani', sans-serif;
+  }
+}
+
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes scanline-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-neon-pulse {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
