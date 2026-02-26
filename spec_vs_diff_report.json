@@ -1,23 +1,39 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T05:59:58.014Z",
-  "summary": "The diff shows TungTungGame.tsx has been updated to load the character image from '/assets/generated/tung-character.dim_300x300.png', render it on canvas with idle pulse animation, click flash/shake effects, and fallback placeholder. The combo/score mechanics are preserved. However, the actual image file (tung-character.dim_300x300.png) is not present in the diff as an added file, which is a key requirement.",
+  "generatedAt": "2026-02-26T07:00:45.569Z",
+  "summary": "The diff modifies RetroBowlGame.tsx with a comprehensive rewrite implementing most REQ-59 requirements. However, due to truncation of the file diff, several acceptance criteria cannot be fully verified. Based on visible code, the implementation includes field rendering, HUD, player types, game phases (HALFTIME, GAME_OVER, EXTRA_POINT, PLAY_CALL, etc.), ball flight mechanics, and tackle timers. Several specific ACs are partially or potentially missing based on what is visible.",
   "missing_requirements": [
     {
-      "id": "REQ-35",
-      "requirement": "Save the uploaded image (IMG_0282.jpeg) as a static asset at frontend/public/assets/generated/tung-character.dim_300x300.png",
-      "reason": "The diff shows no added files. The image file frontend/public/assets/generated/tung-character.dim_300x300.png does not appear in the added files list. The code references it but the asset itself is not present in the diff.",
+      "id": "REQ-59",
+      "requirement": "Tackle/collision animations play when the ball carrier is brought down.",
+      "reason": "While a 'tackleTimer' field exists in the Player interface, no explicit tackle animation drawing code is visible in the truncated diff. The presence of a timer field is insufficient to confirm animated tackle/collision visuals are rendered.",
       "evidence": [
-        "frontend/src/components/games/TungTungGame.tsx"
+        "frontend/src/components/games/RetroBowlGame.tsx"
+      ]
+    },
+    {
+      "id": "REQ-59",
+      "requirement": "Safety (2 pts) is correctly implemented.",
+      "reason": "No explicit safety scoring logic or safety detection code is visible in the visible portion of the diff.",
+      "evidence": [
+        "frontend/src/components/games/RetroBowlGame.tsx"
+      ]
+    },
+    {
+      "id": "REQ-59",
+      "requirement": "Punt option on 4th down is implemented with full mechanics.",
+      "reason": "A 'puntOccurred' boolean exists in GameState, but the play-calling screen UI code and actual punt mechanics (distance, possession change) are not visible in the truncated diff.",
+      "evidence": [
+        "frontend/src/components/games/RetroBowlGame.tsx"
       ]
     }
   ],
   "hallucinated_features": [],
-  "confidence": 0.82,
+  "confidence": 0.45,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/games/TungTungGame.tsx",
+    "frontend/src/components/games/RetroBowlGame.tsx",
     "project_state.json"
   ]
 }

@@ -1,23 +1,33 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Replace 67 Clicker character with uploaded Tung Tung Tung image",
+  "title": "Improve Retro Bowl game to more closely match the original game",
   "requirements": [
     {
-      "id": "REQ-35",
-      "summary": "Replace the programmatically drawn drum/stick figure in TungTungGame with the uploaded wooden stick character image (tung-character.dim_300x300.png), preserving all existing clicker mechanics including idle pulse animation, click shake/flash effects, combo multiplier, and score tracking",
+      "id": "REQ-59",
+      "summary": "Rewrite the RetroBowlGame component to faithfully replicate the original Retro Bowl mobile game with top-down perspective, retro pixel sprites, comprehensive football mechanics, AI opponents, play-calling screens, and proper HUD displays using Chakra Petch or Exo 2 typography",
       "acceptanceCriteria": [
-        "The uploaded wooden stick character image is displayed as the central clickable target in TungTungGame",
-        "Clicking the character still triggers the TUNG! hit effect with flash/shake animation and score increment",
-        "The idle pulsing animation is applied to the character image",
-        "The combo multiplier and best score mechanics remain intact",
-        "The image is loaded from frontend/public/assets/generated/tung-character.dim_300x300.png"
+        "The field is rendered top-down with a bright green surface, white yard lines, hash marks, and labeled end zones.",
+        "Player sprites are bold/blocky retro-style with clearly different colors for each team.",
+        "The HUD bar shows score, quarter, time remaining, down & distance, and yard line at all times.",
+        "Before the snap, receiver routes are shown as dotted/dashed lines on the field.",
+        "Tapping/clicking a route selects a receiver; a second tap/click throws the ball with a leading-pass arc.",
+        "If the player does not throw in time, the QB automatically scrambles.",
+        "On run plays the player steers the ball carrier left/right via clicks/taps.",
+        "AI defenders chase the ball carrier and attempt tackles and interceptions.",
+        "First downs, touchdowns, extra points, field goals, safeties, punts, and turnovers on downs are all correctly implemented.",
+        "The CPU offense uses AI-controlled QB decisions on its possessions.",
+        "A play-calling screen with Pass and Run options appears before each player offensive play.",
+        "Tackle animations play when the ball carrier is brought down.",
+        "A halftime screen is displayed between Q2 and Q3.",
+        "A final score screen with win/loss result and 'Play Again' button appears at game end.",
+        "All HUD and UI text uses Chakra Petch or Exo 2 font."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/games/TungTungGame.tsx",
+          "path": "frontend/src/components/games/RetroBowlGame.tsx",
           "operation": "modify",
-          "description": "Replace the programmatically drawn drum/stick figure canvas rendering with image-based rendering using the character image at frontend/public/assets/generated/tung-character.dim_300x300.png. Load the image on component mount, draw it centered on the canvas as the clickable target, and apply the existing idle pulsing scale animation and click shake/flash effects to the rendered image. Preserve all existing game mechanics: combo multiplier logic, score increment, best score tracking, floating score text, and the TUNG! sound effect trigger. Ensure the image maintains proper centering and scaling within the canvas dimensions."
+          "description": "Completely rewrite the RetroBowlGame component to implement a faithful recreation of the original Retro Bowl mobile game. Render a top-down bright green football field with white yard lines every 5 yards, hash marks, and clearly labeled end zones using canvas rendering. Implement bold, blocky retro pixel-style player sprites with distinct team colors (e.g., red vs blue). Create a persistent HUD bar at the top displaying home score, away score, current quarter, time remaining (MM:SS format), down & distance (e.g., '2nd & 7'), and current yard line. Add a pre-snap phase that displays receiver routes as dotted/dashed lines on the field; implement click-to-select receiver logic followed by click-to-throw with realistic leading-pass arc trajectory. Add QB scramble auto-trigger if no throw occurs within the play clock. For run plays, implement left/right steering via click/tap with smooth ball carrier movement. Implement AI defenders that actively pursue the ball carrier, attempt tackles with collision detection, and intercept poorly thrown passes. Enforce complete football rules: 4 downs to gain 10 yards for first down, touchdown scoring (6 pts) with extra point attempt (1 pt), field goal option on 4th down (3 pts), safety detection (2 pts), punt option on 4th down, and turnover on downs. Implement CPU-controlled offense with AI QB that decides between pass and run plays. Create a play-calling screen modal that appears before each offensive play, showing Pass options (2-3 visible route diagrams) and Run options (left/right/center). Add tackle/collision animations with sprite rotation and slide effects when the ball carrier is brought down. Display a halftime screen between quarters 2 and 3 with current score summary. Show a final score screen at game end with win/loss result text and a 'Play Again' button that resets the game state. Apply Chakra Petch or Exo 2 font family (already loaded in frontend/index.html) to all HUD text, play-calling UI, and game screens using canvas fillText font property or CSS for overlay elements. Maintain existing game state management patterns and ensure the component remains compatible with the GamePage.tsx routing."
         }
       ]
     }

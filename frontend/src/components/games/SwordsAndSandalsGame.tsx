@@ -1,256 +1,267 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
-type GamePhase = 'idle' | 'player-turn' | 'ai-turn' | 'animating' | 'victory' | 'defeat';
-type PlayerAction = 'attack' | 'block' | 'special';
-type CombatLog = { text: string; color: string };
+type GamePhase = 'player-turn' | 'enemy-turn' | 'animating' | 'victory' | 'defeat';
 
-interface Gladiator {
+interface CombatantState {
   hp: number;
   maxHp: number;
   isBlocking: boolean;
-  shakeTimer: number;
-  flashTimer: number;
-  flashColor: string;
+  specialCooldown: number;
+}
+
+interface LogEntry {
+  text: string;
+  color: string;
+}
+
+interface ShakeState {
+  target: 'player' | 'enemy' | null;
+  frames: number;
+}
+
+interface FlashState {
+  target: 'player' | 'enemy' | null;
+  frames: number;
+  color: string;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const PLAYER_MAX_HP = 120;
-const ENEMY_MAX_HP = 100;
 const CANVAS_W = 800;
-const CANVAS_H = 400;
+const CANVAS_H = 420;
+const MAX_HP = 100;
+const SPECIAL_COOLDOWN_TURNS = 3;
+
+const NEON_ORANGE = '#ff6b35';
+const NEON_CYAN = '#00d9ff';
+const NEON_RED = '#ff3355';
+const NEON_GREEN = '#39ff14';
+const NEON_YELLOW = '#ffe600';
+const BG_DARK = '#0a0a0a';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function rand(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function calcDamage(base: number, variance: number, targetBlocking: boolean): number {
-  const raw = rand(base - variance, base + variance);
-  return targetBlocking ? Math.max(1, Math.floor(raw * 0.25)) : raw;
+function slugify(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
+void slugify; // suppress unused warning
 
 // ── Component ──────────────────────────────────────────────────────────────────
-export function SwordsAndSandalsGame() {
+export default function SwordsAndSandalsGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
-  const lastTimeRef = useRef<number>(0);
-
-  // Images
   const bgImgRef = useRef<HTMLImageElement | null>(null);
   const playerImgRef = useRef<HTMLImageElement | null>(null);
   const enemyImgRef = useRef<HTMLImageElement | null>(null);
   const imagesLoadedRef = useRef(0);
 
-  // Game state (refs for render loop)
-  const playerRef = useRef<Gladiator>({ hp: PLAYER_MAX_HP, maxHp: PLAYER_MAX_HP, isBlocking: false, shakeTimer: 0, flashTimer: 0, flashColor: '' });
-  const enemyRef = useRef<Gladiator>({ hp: ENEMY_MAX_HP, maxHp: ENEMY_MAX_HP, isBlocking: false, shakeTimer: 0, flashTimer: 0, flashColor: '' });
+  // Game state refs (for render loop)
+  const playerRef = useRef<CombatantState>({ hp: MAX_HP, maxHp: MAX_HP, isBlocking: false, specialCooldown: 0 });
+  const enemyRef = useRef<CombatantState>({ hp: MAX_HP, maxHp: MAX_HP, isBlocking: false, specialCooldown: 0 });
   const roundRef = useRef(1);
   const phaseRef = useRef<GamePhase>('player-turn');
-  const logsRef = useRef<CombatLog[]>([]);
+  const logRef = useRef<LogEntry[]>([]);
+  const shakeRef = useRef<ShakeState>({ target: null, frames: 0 });
+  const flashRef = useRef<FlashState>({ target: null, frames: 0, color: NEON_RED });
 
   // React state for UI re-renders
   const [phase, setPhase] = useState<GamePhase>('player-turn');
   const [round, setRound] = useState(1);
-  const [playerHp, setPlayerHp] = useState(PLAYER_MAX_HP);
-  const [enemyHp, setEnemyHp] = useState(ENEMY_MAX_HP);
-  const [logs, setLogs] = useState<CombatLog[]>([]);
-  const [isActing, setIsActing] = useState(false);
+  const [playerHp, setPlayerHp] = useState(MAX_HP);
+  const [enemyHp, setEnemyHp] = useState(MAX_HP);
+  const [playerSpecialCd, setPlayerSpecialCd] = useState(0);
+  const [log, setLog] = useState<LogEntry[]>([]);
+  const [imagesReady, setImagesReady] = useState(false);
 
   // ── Image loading ────────────────────────────────────────────────────────────
   useEffect(() => {
     const total = 3;
     const onLoad = () => {
       imagesLoadedRef.current += 1;
+      if (imagesLoadedRef.current >= total) setImagesReady(true);
     };
 
     const bg = new Image();
     bg.src = '/assets/generated/swords-sandals-bg.dim_800x400.png';
     bg.onload = onLoad;
+    bg.onerror = onLoad; // still proceed even if missing
     bgImgRef.current = bg;
 
     const player = new Image();
     player.src = '/assets/generated/gladiator-player.dim_128x256.png';
     player.onload = onLoad;
+    player.onerror = onLoad;
     playerImgRef.current = player;
 
     const enemy = new Image();
     enemy.src = '/assets/generated/gladiator-enemy.dim_128x256.png';
     enemy.onload = onLoad;
+    enemy.onerror = onLoad;
     enemyImgRef.current = enemy;
-
-    return () => {
-      bg.onload = null;
-      player.onload = null;
-      enemy.onload = null;
-    };
   }, []);
 
   // ── Canvas render loop ───────────────────────────────────────────────────────
-  const draw = useCallback((timestamp: number) => {
+  const drawFrame = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const dt = Math.min((timestamp - lastTimeRef.current) / 1000, 0.1);
-    lastTimeRef.current = timestamp;
-
-    // Tick shake/flash timers
-    const p = playerRef.current;
-    const e = enemyRef.current;
-    if (p.shakeTimer > 0) p.shakeTimer = Math.max(0, p.shakeTimer - dt);
-    if (e.shakeTimer > 0) e.shakeTimer = Math.max(0, e.shakeTimer - dt);
-    if (p.flashTimer > 0) p.flashTimer = Math.max(0, p.flashTimer - dt);
-    if (e.flashTimer > 0) e.flashTimer = Math.max(0, e.flashTimer - dt);
-
-    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+    const player = playerRef.current;
+    const enemy = enemyRef.current;
+    const shake = shakeRef.current;
+    const flash = flashRef.current;
 
     // Background
-    if (bgImgRef.current && bgImgRef.current.complete) {
+    if (bgImgRef.current && bgImgRef.current.complete && bgImgRef.current.naturalWidth > 0) {
       ctx.drawImage(bgImgRef.current, 0, 0, CANVAS_W, CANVAS_H);
     } else {
-      // Fallback gradient arena
+      // Fallback sandy arena
       const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
-      grad.addColorStop(0, '#0a0a1a');
-      grad.addColorStop(0.6, '#1a0a0a');
-      grad.addColorStop(1, '#2a1a00');
+      grad.addColorStop(0, '#1a0a00');
+      grad.addColorStop(0.6, '#3d1f00');
+      grad.addColorStop(1, '#5c3000');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-
       // Sand floor
-      ctx.fillStyle = '#3d2b1a';
-      ctx.fillRect(0, CANVAS_H * 0.72, CANVAS_W, CANVAS_H * 0.28);
-
-      // Arena lines
-      ctx.strokeStyle = '#5a3a1a';
-      ctx.lineWidth = 2;
-      for (let i = 0; i < 5; i++) {
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_H * 0.72 + i * 20);
-        ctx.lineTo(CANVAS_W, CANVAS_H * 0.72 + i * 20);
-        ctx.stroke();
-      }
+      ctx.fillStyle = '#8b6914';
+      ctx.fillRect(0, CANVAS_H - 80, CANVAS_W, 80);
+      ctx.fillStyle = '#a07820';
+      ctx.fillRect(0, CANVAS_H - 82, CANVAS_W, 4);
     }
 
-    // Vignette overlay
-    const vignette = ctx.createRadialGradient(CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.3, CANVAS_W / 2, CANVAS_H / 2, CANVAS_W * 0.8);
-    vignette.addColorStop(0, 'rgba(0,0,0,0)');
-    vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
-    ctx.fillStyle = vignette;
+    // Dark overlay for readability
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
     // ── Draw gladiators ──────────────────────────────────────────────────────
-    const groundY = CANVAS_H * 0.72;
-    const spriteH = 180;
-    const spriteW = 90;
+    const GROUND_Y = CANVAS_H - 80;
+    const SPRITE_H = 160;
+    const SPRITE_W = 80;
 
-    // Player (left side)
-    const pShakeX = p.shakeTimer > 0 ? Math.sin(p.shakeTimer * 60) * 6 : 0;
-    const pX = 120 + pShakeX;
-    const pY = groundY - spriteH;
+    // Player position (left side)
+    let px = 140;
+    let py = GROUND_Y - SPRITE_H;
+    if (shake.target === 'player' && shake.frames > 0) {
+      px += Math.sin(shake.frames * 1.8) * 8;
+    }
 
+    // Enemy position (right side)
+    let ex = CANVAS_W - 140 - SPRITE_W;
+    let ey = GROUND_Y - SPRITE_H;
+    if (shake.target === 'enemy' && shake.frames > 0) {
+      ex += Math.sin(shake.frames * 1.8) * 8;
+    }
+
+    // Draw player sprite or fallback
     ctx.save();
-    if (p.flashTimer > 0) {
-      ctx.globalAlpha = 0.85;
-    }
-    if (playerImgRef.current && playerImgRef.current.complete) {
-      ctx.drawImage(playerImgRef.current, pX - spriteW / 2, pY, spriteW, spriteH);
+    if (playerImgRef.current && playerImgRef.current.complete && playerImgRef.current.naturalWidth > 0) {
+      ctx.drawImage(playerImgRef.current, px, py, SPRITE_W, SPRITE_H);
     } else {
-      drawFallbackGladiator(ctx, pX, pY, spriteW, spriteH, '#39ff14', p.isBlocking);
+      drawFallbackGladiator(ctx, px, py, SPRITE_W, SPRITE_H, NEON_ORANGE, false);
     }
-    if (p.flashTimer > 0) {
-      ctx.globalCompositeOperation = 'source-atop';
-      ctx.fillStyle = p.flashColor;
-      ctx.globalAlpha = 0.5;
-      ctx.fillRect(pX - spriteW / 2, pY, spriteW, spriteH);
+    // Blocking shield glow
+    if (player.isBlocking) {
+      ctx.strokeStyle = NEON_CYAN;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = NEON_CYAN;
+      ctx.shadowBlur = 20;
+      ctx.strokeRect(px - 4, py - 4, SPRITE_W + 8, SPRITE_H + 8);
     }
     ctx.restore();
 
-    // Blocking shield glow for player
-    if (p.isBlocking) {
-      ctx.save();
-      ctx.shadowColor = '#39ff14';
-      ctx.shadowBlur = 20;
-      ctx.strokeStyle = '#39ff14';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(pX - spriteW / 2 - 4, pY - 4, spriteW + 8, spriteH + 8);
-      ctx.restore();
-    }
-
-    // Enemy (right side)
-    const eShakeX = e.shakeTimer > 0 ? Math.sin(e.shakeTimer * 60) * 6 : 0;
-    const eX = CANVAS_W - 120 + eShakeX;
-    const eY = groundY - spriteH;
-
+    // Draw enemy sprite or fallback (flipped)
     ctx.save();
-    if (e.flashTimer > 0) {
-      ctx.globalAlpha = 0.85;
-    }
-    if (enemyImgRef.current && enemyImgRef.current.complete) {
-      // Flip enemy to face left
-      ctx.translate(eX + spriteW / 2, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(enemyImgRef.current, 0, eY, spriteW, spriteH);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.translate(ex + SPRITE_W, ey);
+    ctx.scale(-1, 1);
+    if (enemyImgRef.current && enemyImgRef.current.complete && enemyImgRef.current.naturalWidth > 0) {
+      ctx.drawImage(enemyImgRef.current, 0, 0, SPRITE_W, SPRITE_H);
     } else {
-      drawFallbackGladiator(ctx, eX, eY, spriteW, spriteH, '#ff2d55', e.isBlocking);
+      drawFallbackGladiator(ctx, 0, 0, SPRITE_W, SPRITE_H, NEON_RED, true);
     }
-    if (e.flashTimer > 0) {
-      ctx.globalCompositeOperation = 'source-atop';
-      ctx.fillStyle = e.flashColor;
-      ctx.globalAlpha = 0.5;
-      ctx.fillRect(eX - spriteW / 2, eY, spriteW, spriteH);
+    if (enemy.isBlocking) {
+      ctx.strokeStyle = NEON_CYAN;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = NEON_CYAN;
+      ctx.shadowBlur = 20;
+      ctx.strokeRect(-4, -4, SPRITE_W + 8, SPRITE_H + 8);
     }
     ctx.restore();
 
-    // Blocking shield glow for enemy
-    if (e.isBlocking) {
-      ctx.save();
-      ctx.shadowColor = '#ff2d55';
-      ctx.shadowBlur = 20;
-      ctx.strokeStyle = '#ff2d55';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(eX - spriteW / 2 - 4, eY - 4, spriteW + 8, spriteH + 8);
-      ctx.restore();
+    // Flash overlay on hit
+    if (flash.frames > 0) {
+      const alpha = (flash.frames / 12) * 0.5;
+      ctx.fillStyle = flash.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba').replace('#', '');
+      // Simple colored flash over the target
+      const fx = flash.target === 'player' ? px : ex;
+      const fy = flash.target === 'player' ? py : ey;
+      ctx.fillStyle = flash.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+      ctx.fillRect(fx - 4, fy - 4, SPRITE_W + 8, SPRITE_H + 8);
     }
 
     // ── Health bars ──────────────────────────────────────────────────────────
-    drawHealthBar(ctx, 60, 20, 200, 22, p.hp, p.maxHp, '#39ff14', 'PLAYER');
-    drawHealthBar(ctx, CANVAS_W - 260, 20, 200, 22, e.hp, e.maxHp, '#ff2d55', 'ENEMY');
+    drawHealthBar(ctx, px, py - 36, SPRITE_W, player.hp, player.maxHp, NEON_ORANGE, 'YOU');
+    drawHealthBar(ctx, ex, ey - 36, SPRITE_W, enemy.hp, enemy.maxHp, NEON_RED, 'ENEMY');
 
     // ── Round counter ────────────────────────────────────────────────────────
     ctx.save();
-    ctx.font = 'bold 18px Orbitron, monospace';
+    ctx.font = 'bold 18px "Chakra Petch", monospace';
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffe066';
-    ctx.shadowColor = '#ffe066';
+    ctx.fillStyle = NEON_YELLOW;
+    ctx.shadowColor = NEON_YELLOW;
     ctx.shadowBlur = 12;
-    ctx.fillText(`ROUND ${roundRef.current}`, CANVAS_W / 2, 36);
+    ctx.fillText(`ROUND ${roundRef.current}`, CANVAS_W / 2, 32);
     ctx.restore();
 
-    rafRef.current = requestAnimationFrame(draw);
+    // ── Phase label ──────────────────────────────────────────────────────────
+    const phaseLabel =
+      phaseRef.current === 'player-turn'
+        ? '⚔ YOUR TURN'
+        : phaseRef.current === 'enemy-turn' || phaseRef.current === 'animating'
+          ? '🛡 ENEMY TURN'
+          : '';
+    if (phaseLabel) {
+      ctx.save();
+      ctx.font = 'bold 14px "Chakra Petch", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = phaseRef.current === 'player-turn' ? NEON_CYAN : NEON_RED;
+      ctx.shadowColor = phaseRef.current === 'player-turn' ? NEON_CYAN : NEON_RED;
+      ctx.shadowBlur = 10;
+      ctx.fillText(phaseLabel, CANVAS_W / 2, 56);
+      ctx.restore();
+    }
+
+    // Tick animations
+    if (shake.frames > 0) shakeRef.current = { ...shake, frames: shake.frames - 1 };
+    if (flash.frames > 0) flashRef.current = { ...flash, frames: flash.frames - 1 };
+
+    rafRef.current = requestAnimationFrame(drawFrame);
   }, []);
 
   useEffect(() => {
-    lastTimeRef.current = performance.now();
-    rafRef.current = requestAnimationFrame(draw);
+    if (!imagesReady) return;
+    rafRef.current = requestAnimationFrame(drawFrame);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [draw]);
+  }, [imagesReady, drawFrame]);
 
-  // ── Combat logic ─────────────────────────────────────────────────────────────
+  // ── Game logic ───────────────────────────────────────────────────────────────
   const addLog = useCallback((text: string, color: string) => {
-    logsRef.current = [{ text, color }, ...logsRef.current].slice(0, 6);
-    setLogs([...logsRef.current]);
+    const entry: LogEntry = { text, color };
+    logRef.current = [entry, ...logRef.current].slice(0, 6);
+    setLog([...logRef.current]);
   }, []);
 
   const syncState = useCallback(() => {
     setPlayerHp(playerRef.current.hp);
     setEnemyHp(enemyRef.current.hp);
+    setPlayerSpecialCd(playerRef.current.specialCooldown);
     setRound(roundRef.current);
   }, []);
 
-  const checkGameOver = useCallback((): boolean => {
+  const checkGameOver = useCallback(() => {
     if (enemyRef.current.hp <= 0) {
       phaseRef.current = 'victory';
       setPhase('victory');
@@ -264,301 +275,360 @@ export function SwordsAndSandalsGame() {
     return false;
   }, []);
 
-  const doAiTurn = useCallback(() => {
-    const aiActions: PlayerAction[] = ['attack', 'attack', 'attack', 'block', 'special'];
-    const action = aiActions[rand(0, aiActions.length - 1)];
-    const e = enemyRef.current;
-    const p = playerRef.current;
+  const doEnemyTurn = useCallback(() => {
+    const enemy = enemyRef.current;
+    const player = playerRef.current;
 
-    e.isBlocking = false;
+    // Reduce cooldowns
+    if (enemy.specialCooldown > 0) enemy.specialCooldown -= 1;
 
-    if (action === 'block') {
-      e.isBlocking = true;
-      addLog('Enemy raises their shield! 🛡️', '#ff2d55');
-    } else if (action === 'special') {
-      const dmg = calcDamage(22, 8, p.isBlocking);
-      p.hp = Math.max(0, p.hp - dmg);
-      p.shakeTimer = 0.4;
-      p.flashTimer = 0.3;
-      p.flashColor = '#ff2d55';
-      addLog(`Enemy unleashes a FURY STRIKE! -${dmg} HP ⚡`, '#ff2d55');
+    // AI weighted random: prefer attack, occasionally block or special
+    const roll = Math.random();
+    let action: 'attack' | 'block' | 'special';
+    if (enemy.specialCooldown === 0 && roll < 0.2) {
+      action = 'special';
+    } else if (roll < 0.25) {
+      action = 'block';
     } else {
-      const dmg = calcDamage(14, 5, p.isBlocking);
-      p.hp = Math.max(0, p.hp - dmg);
-      p.shakeTimer = 0.3;
-      p.flashTimer = 0.25;
-      p.flashColor = '#ff6b6b';
-      const blocked = p.isBlocking ? ' (blocked!)' : '';
-      addLog(`Enemy attacks for ${dmg} damage!${blocked} ⚔️`, '#ff8888');
+      action = 'attack';
     }
 
-    p.isBlocking = false;
+    if (action === 'block') {
+      enemy.isBlocking = true;
+      addLog('Enemy braces for impact!', NEON_CYAN);
+    } else if (action === 'special') {
+      enemy.specialCooldown = SPECIAL_COOLDOWN_TURNS;
+      const dmg = rand(35, 45);
+      const reduced = player.isBlocking ? Math.floor(dmg * 0.3) : dmg;
+      player.hp = Math.max(0, player.hp - reduced);
+      shakeRef.current = { target: 'player', frames: 14 };
+      flashRef.current = { target: 'player', frames: 12, color: '#ff0000' };
+      addLog(
+        player.isBlocking
+          ? `Enemy SPECIAL! You blocked — took ${reduced} dmg!`
+          : `Enemy SPECIAL MOVE! You took ${reduced} dmg!`,
+        NEON_RED,
+      );
+    } else {
+      const dmg = rand(15, 25);
+      const reduced = player.isBlocking ? Math.floor(dmg * 0.3) : dmg;
+      player.hp = Math.max(0, player.hp - reduced);
+      shakeRef.current = { target: 'player', frames: 10 };
+      flashRef.current = { target: 'player', frames: 8, color: '#ff0000' };
+      addLog(
+        player.isBlocking ? `Enemy attacks! You blocked — took ${reduced} dmg.` : `Enemy attacks! You took ${reduced} dmg.`,
+        NEON_RED,
+      );
+    }
+
+    // Reset player block after enemy turn
+    player.isBlocking = false;
+
+    // Increment round after both have acted
+    roundRef.current += 1;
+
     syncState();
 
     if (!checkGameOver()) {
-      roundRef.current += 1;
-      syncState();
       phaseRef.current = 'player-turn';
       setPhase('player-turn');
     }
-
-    setIsActing(false);
   }, [addLog, syncState, checkGameOver]);
 
-  const handlePlayerAction = useCallback((action: PlayerAction) => {
-    if (phaseRef.current !== 'player-turn' || isActing) return;
+  const handleAction = useCallback(
+    (action: 'attack' | 'block' | 'special') => {
+      if (phaseRef.current !== 'player-turn') return;
 
-    setIsActing(true);
-    phaseRef.current = 'animating';
-    setPhase('animating');
+      const player = playerRef.current;
+      const enemy = enemyRef.current;
 
-    const p = playerRef.current;
-    const e = enemyRef.current;
+      // Reduce player cooldowns
+      if (player.specialCooldown > 0) player.specialCooldown -= 1;
 
-    p.isBlocking = false;
+      // Reset enemy block each round
+      enemy.isBlocking = false;
 
-    if (action === 'block') {
-      p.isBlocking = true;
-      addLog('You raise your shield! 🛡️', '#39ff14');
-    } else if (action === 'special') {
-      const dmg = calcDamage(25, 10, e.isBlocking);
-      e.hp = Math.max(0, e.hp - dmg);
-      e.shakeTimer = 0.5;
-      e.flashTimer = 0.35;
-      e.flashColor = '#ff2d55';
-      addLog(`You unleash a POWER STRIKE! -${dmg} HP ⚡`, '#ffe066');
-    } else {
-      const dmg = calcDamage(15, 6, e.isBlocking);
-      e.hp = Math.max(0, e.hp - dmg);
-      e.shakeTimer = 0.35;
-      e.flashTimer = 0.25;
-      e.flashColor = '#ff6b6b';
-      const blocked = e.isBlocking ? ' (blocked!)' : '';
-      addLog(`You attack for ${dmg} damage!${blocked} ⚔️`, '#39ff14');
-    }
+      if (action === 'attack') {
+        const dmg = rand(15, 25);
+        const reduced = enemy.isBlocking ? Math.floor(dmg * 0.3) : dmg;
+        enemy.hp = Math.max(0, enemy.hp - reduced);
+        shakeRef.current = { target: 'enemy', frames: 10 };
+        flashRef.current = { target: 'enemy', frames: 8, color: '#ff6600' };
+        addLog(
+          enemy.isBlocking ? `You attack! Enemy blocked — dealt ${reduced} dmg.` : `You attack! Dealt ${reduced} dmg.`,
+          NEON_ORANGE,
+        );
+      } else if (action === 'block') {
+        player.isBlocking = true;
+        addLog('You raise your shield!', NEON_CYAN);
+      } else if (action === 'special') {
+        if (player.specialCooldown > 0) return; // still on cooldown
+        player.specialCooldown = SPECIAL_COOLDOWN_TURNS;
+        const dmg = rand(35, 45);
+        const reduced = enemy.isBlocking ? Math.floor(dmg * 0.3) : dmg;
+        enemy.hp = Math.max(0, enemy.hp - reduced);
+        shakeRef.current = { target: 'enemy', frames: 16 };
+        flashRef.current = { target: 'enemy', frames: 14, color: '#ff6600' };
+        addLog(
+          enemy.isBlocking
+            ? `SPECIAL MOVE! Enemy blocked — dealt ${reduced} dmg!`
+            : `SPECIAL MOVE! Dealt ${reduced} dmg!`,
+          NEON_YELLOW,
+        );
+      }
 
-    syncState();
+      syncState();
 
-    if (checkGameOver()) {
-      setIsActing(false);
-      return;
-    }
+      if (!checkGameOver()) {
+        phaseRef.current = 'animating';
+        setPhase('animating');
+        // Short delay before enemy acts
+        setTimeout(() => {
+          doEnemyTurn();
+        }, 900);
+      }
+    },
+    [addLog, syncState, checkGameOver, doEnemyTurn],
+  );
 
-    // AI takes its turn after a short delay
-    setTimeout(() => {
-      doAiTurn();
-    }, 900);
-  }, [isActing, addLog, syncState, checkGameOver, doAiTurn]);
-
-  // ── Reset ────────────────────────────────────────────────────────────────────
   const resetGame = useCallback(() => {
-    playerRef.current = { hp: PLAYER_MAX_HP, maxHp: PLAYER_MAX_HP, isBlocking: false, shakeTimer: 0, flashTimer: 0, flashColor: '' };
-    enemyRef.current = { hp: ENEMY_MAX_HP, maxHp: ENEMY_MAX_HP, isBlocking: false, shakeTimer: 0, flashTimer: 0, flashColor: '' };
+    playerRef.current = { hp: MAX_HP, maxHp: MAX_HP, isBlocking: false, specialCooldown: 0 };
+    enemyRef.current = { hp: MAX_HP, maxHp: MAX_HP, isBlocking: false, specialCooldown: 0 };
     roundRef.current = 1;
     phaseRef.current = 'player-turn';
-    logsRef.current = [];
+    logRef.current = [];
+    shakeRef.current = { target: null, frames: 0 };
+    flashRef.current = { target: null, frames: 0, color: NEON_RED };
+
     setPhase('player-turn');
     setRound(1);
-    setPlayerHp(PLAYER_MAX_HP);
-    setEnemyHp(ENEMY_MAX_HP);
-    setLogs([]);
-    setIsActing(false);
+    setPlayerHp(MAX_HP);
+    setEnemyHp(MAX_HP);
+    setPlayerSpecialCd(0);
+    setLog([]);
   }, []);
 
   // ── Render ───────────────────────────────────────────────────────────────────
   const isPlayerTurn = phase === 'player-turn';
-  const buttonsDisabled = !isPlayerTurn || isActing;
+  const isAnimating = phase === 'animating' || phase === 'enemy-turn';
 
   return (
-    <div className="flex flex-col items-center gap-4 select-none">
-      {/* Canvas arena */}
-      <div className="relative w-full max-w-[800px]">
+    <div className="flex flex-col items-center gap-4 select-none" style={{ fontFamily: "'Chakra Petch', monospace" }}>
+      {/* Canvas */}
+      <div className="relative" style={{ width: CANVAS_W, maxWidth: '100%' }}>
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
           height={CANVAS_H}
-          className="w-full rounded-lg border border-neon-yellow/30 shadow-[0_0_30px_rgba(255,224,102,0.15)]"
-          style={{ imageRendering: 'pixelated' }}
+          className="rounded-xl border-2"
+          style={{
+            borderColor: NEON_ORANGE,
+            boxShadow: `0 0 24px ${NEON_ORANGE}55, 0 0 48px ${NEON_ORANGE}22`,
+            display: 'block',
+            maxWidth: '100%',
+          }}
         />
+
+        {/* Loading overlay */}
+        {!imagesReady && (
+          <div
+            className="absolute inset-0 flex items-center justify-center rounded-xl"
+            style={{ background: BG_DARK }}
+          >
+            <p style={{ color: NEON_CYAN, fontSize: 18, fontFamily: "'Chakra Petch', monospace" }}>
+              Loading Arena…
+            </p>
+          </div>
+        )}
 
         {/* Victory overlay */}
         {phase === 'victory' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-black/75 backdrop-blur-sm">
-            <div className="text-center space-y-4">
-              <p className="font-orbitron text-5xl font-black neon-text-green animate-pulse">VICTORY!</p>
-              <p className="font-rajdhani text-xl text-neon-yellow tracking-widest">The crowd roars for you, Champion!</p>
-              <button
-                onClick={resetGame}
-                className="mt-4 px-8 py-3 font-orbitron font-bold text-sm tracking-widest bg-neon-green/20 border-2 border-neon-green text-neon-green rounded hover:bg-neon-green/40 transition-all shadow-[0_0_20px_rgba(57,255,20,0.4)]"
-              >
-                PLAY AGAIN
-              </button>
-            </div>
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center rounded-xl gap-6"
+            style={{ background: 'rgba(0,0,0,0.82)' }}
+          >
+            <p
+              className="text-5xl font-black tracking-widest uppercase"
+              style={{ color: NEON_YELLOW, textShadow: `0 0 24px ${NEON_YELLOW}, 0 0 48px ${NEON_YELLOW}` }}
+            >
+              VICTORY!
+            </p>
+            <p style={{ color: NEON_CYAN, fontSize: 16 }}>You defeated the enemy gladiator!</p>
+            <button
+              onClick={resetGame}
+              className="px-8 py-3 rounded-lg font-black uppercase tracking-widest text-sm transition-all duration-200"
+              style={{
+                background: NEON_YELLOW,
+                color: BG_DARK,
+                boxShadow: `0 0 16px ${NEON_YELLOW}`,
+              }}
+            >
+              Play Again
+            </button>
           </div>
         )}
 
         {/* Defeat overlay */}
         {phase === 'defeat' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-black/75 backdrop-blur-sm">
-            <div className="text-center space-y-4">
-              <p className="font-orbitron text-5xl font-black neon-text-pink animate-pulse">DEFEATED!</p>
-              <p className="font-rajdhani text-xl text-muted-foreground tracking-widest">You have fallen in the arena...</p>
-              <button
-                onClick={resetGame}
-                className="mt-4 px-8 py-3 font-orbitron font-bold text-sm tracking-widest bg-neon-pink/20 border-2 border-neon-pink text-neon-pink rounded hover:bg-neon-pink/40 transition-all shadow-[0_0_20px_rgba(255,45,85,0.4)]"
-              >
-                TRY AGAIN
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* AI turn indicator */}
-        {phase === 'animating' && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-            <p className="font-orbitron text-lg font-bold text-neon-yellow animate-pulse tracking-widest drop-shadow-lg">
-              ENEMY THINKING...
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center rounded-xl gap-6"
+            style={{ background: 'rgba(0,0,0,0.82)' }}
+          >
+            <p
+              className="text-5xl font-black tracking-widest uppercase"
+              style={{ color: NEON_RED, textShadow: `0 0 24px ${NEON_RED}, 0 0 48px ${NEON_RED}` }}
+            >
+              DEFEATED
             </p>
+            <p style={{ color: '#aaa', fontSize: 16 }}>The arena claims another warrior…</p>
+            <button
+              onClick={resetGame}
+              className="px-8 py-3 rounded-lg font-black uppercase tracking-widest text-sm transition-all duration-200"
+              style={{
+                background: NEON_ORANGE,
+                color: BG_DARK,
+                boxShadow: `0 0 16px ${NEON_ORANGE}`,
+              }}
+            >
+              Try Again
+            </button>
           </div>
         )}
       </div>
 
-      {/* HUD row */}
-      <div className="w-full max-w-[800px] grid grid-cols-3 gap-3 items-center">
-        {/* Player HP */}
-        <div className="space-y-1">
-          <div className="flex justify-between font-rajdhani text-xs tracking-widest text-neon-green">
-            <span>PLAYER</span>
-            <span>{playerHp} / {PLAYER_MAX_HP}</span>
-          </div>
-          <div className="h-3 bg-black/60 rounded-full border border-neon-green/30 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{
-                width: `${(playerHp / PLAYER_MAX_HP) * 100}%`,
-                background: 'linear-gradient(90deg, #39ff14, #00ff88)',
-                boxShadow: '0 0 8px #39ff14',
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Round */}
-        <div className="text-center">
-          <p className="font-orbitron text-xs text-muted-foreground tracking-widest">ROUND</p>
-          <p className="font-orbitron text-2xl font-black text-neon-yellow" style={{ textShadow: '0 0 12px #ffe066' }}>
-            {round}
-          </p>
-        </div>
-
-        {/* Enemy HP */}
-        <div className="space-y-1">
-          <div className="flex justify-between font-rajdhani text-xs tracking-widest text-neon-pink">
-            <span>{enemyHp} / {ENEMY_MAX_HP}</span>
-            <span>ENEMY</span>
-          </div>
-          <div className="h-3 bg-black/60 rounded-full border border-neon-pink/30 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-300 ml-auto"
-              style={{
-                width: `${(enemyHp / ENEMY_MAX_HP) * 100}%`,
-                background: 'linear-gradient(90deg, #ff2d55, #ff6b6b)',
-                boxShadow: '0 0 8px #ff2d55',
-              }}
-            />
-          </div>
-        </div>
+      {/* HP bars (React UI) */}
+      <div className="w-full flex gap-4 justify-between" style={{ maxWidth: CANVAS_W }}>
+        <HpBar label="YOU" hp={playerHp} maxHp={MAX_HP} color={NEON_ORANGE} />
+        <HpBar label="ENEMY" hp={enemyHp} maxHp={MAX_HP} color={NEON_RED} />
       </div>
 
       {/* Action buttons */}
-      <div className="w-full max-w-[800px] grid grid-cols-3 gap-3">
+      <div className="flex gap-3 flex-wrap justify-center">
         <ActionButton
-          label="⚔️ ATTACK"
-          sublabel="15–21 dmg"
-          color="neon-green"
-          disabled={buttonsDisabled}
-          onClick={() => handlePlayerAction('attack')}
+          label="⚔ Attack"
+          onClick={() => handleAction('attack')}
+          disabled={!isPlayerTurn}
+          color={NEON_ORANGE}
+          loading={isAnimating}
         />
         <ActionButton
-          label="🛡️ BLOCK"
-          sublabel="Reduce dmg 75%"
-          color="neon-cyan"
-          disabled={buttonsDisabled}
-          onClick={() => handlePlayerAction('block')}
+          label="🛡 Block"
+          onClick={() => handleAction('block')}
+          disabled={!isPlayerTurn}
+          color={NEON_CYAN}
+          loading={isAnimating}
         />
         <ActionButton
-          label="⚡ SPECIAL"
-          sublabel="15–35 dmg"
-          color="neon-yellow"
-          disabled={buttonsDisabled}
-          onClick={() => handlePlayerAction('special')}
+          label={playerSpecialCd > 0 ? `✨ Special (${playerSpecialCd})` : '✨ Special'}
+          onClick={() => handleAction('special')}
+          disabled={!isPlayerTurn || playerSpecialCd > 0}
+          color={NEON_YELLOW}
+          loading={isAnimating}
         />
+      </div>
+
+      {/* Round + status */}
+      <div className="flex items-center gap-6 text-sm" style={{ color: '#888' }}>
+        <span style={{ color: NEON_YELLOW }}>Round {round}</span>
+        <span>
+          {phase === 'player-turn' && <span style={{ color: NEON_CYAN }}>Your turn — choose an action</span>}
+          {phase === 'animating' && <span style={{ color: NEON_RED }}>Enemy is acting…</span>}
+          {phase === 'enemy-turn' && <span style={{ color: NEON_RED }}>Enemy is acting…</span>}
+        </span>
       </div>
 
       {/* Combat log */}
-      <div className="w-full max-w-[800px] bg-black/50 border border-white/10 rounded-lg p-3 min-h-[100px]">
-        <p className="font-orbitron text-xs text-muted-foreground tracking-widest mb-2">COMBAT LOG</p>
-        <div className="space-y-1">
-          {logs.length === 0 && (
-            <p className="font-rajdhani text-sm text-muted-foreground italic">The battle begins... Choose your action!</p>
-          )}
-          {logs.map((log, i) => (
-            <p
-              key={i}
-              className="font-rajdhani text-sm tracking-wide"
-              style={{ color: log.color, opacity: 1 - i * 0.15 }}
-            >
-              {log.text}
-            </p>
-          ))}
-        </div>
+      <div
+        className="w-full rounded-lg p-3 text-xs space-y-1"
+        style={{
+          maxWidth: CANVAS_W,
+          background: 'rgba(0,0,0,0.6)',
+          border: `1px solid ${NEON_ORANGE}44`,
+          minHeight: 80,
+        }}
+      >
+        <p className="text-xs uppercase tracking-widest mb-2" style={{ color: NEON_ORANGE }}>
+          Combat Log
+        </p>
+        {log.length === 0 && <p style={{ color: '#555' }}>The battle begins…</p>}
+        {log.map((entry, i) => (
+          <p key={i} style={{ color: entry.color, opacity: 1 - i * 0.12 }}>
+            {entry.text}
+          </p>
+        ))}
       </div>
 
       {/* Instructions */}
-      <div className="w-full max-w-[800px] bg-black/30 border border-white/5 rounded-lg p-3">
-        <p className="font-orbitron text-xs text-muted-foreground tracking-widest mb-2">HOW TO PLAY</p>
-        <div className="grid grid-cols-3 gap-2 font-rajdhani text-xs text-muted-foreground">
-          <p>⚔️ <span className="text-neon-green">Attack</span> — Deal moderate damage to the enemy</p>
-          <p>🛡️ <span className="text-neon-cyan">Block</span> — Reduce incoming damage by 75% this round</p>
-          <p>⚡ <span className="text-neon-yellow">Special</span> — High-risk, high-reward power strike</p>
-        </div>
+      <div
+        className="w-full rounded-lg p-3 text-xs"
+        style={{
+          maxWidth: CANVAS_W,
+          background: 'rgba(0,0,0,0.4)',
+          border: `1px solid #333`,
+          color: '#666',
+        }}
+      >
+        <span style={{ color: NEON_ORANGE }}>⚔ Attack</span> — 15–25 dmg &nbsp;|&nbsp;
+        <span style={{ color: NEON_CYAN }}>🛡 Block</span> — reduce next hit by 70% &nbsp;|&nbsp;
+        <span style={{ color: NEON_YELLOW }}>✨ Special</span> — 35–45 dmg, {SPECIAL_COOLDOWN_TURNS}-turn cooldown
       </div>
     </div>
   );
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
-interface ActionButtonProps {
-  label: string;
-  sublabel: string;
-  color: 'neon-green' | 'neon-cyan' | 'neon-yellow' | 'neon-pink';
-  disabled: boolean;
-  onClick: () => void;
+function HpBar({ label, hp, maxHp, color }: { label: string; hp: number; maxHp: number; color: string }) {
+  const pct = Math.max(0, (hp / maxHp) * 100);
+  return (
+    <div className="flex-1">
+      <div className="flex justify-between text-xs mb-1" style={{ color }}>
+        <span className="font-bold tracking-widest">{label}</span>
+        <span>
+          {hp}/{maxHp}
+        </span>
+      </div>
+      <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: '#1a1a1a', border: `1px solid ${color}44` }}>
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{
+            width: `${pct}%`,
+            background: color,
+            boxShadow: `0 0 8px ${color}`,
+          }}
+        />
+      </div>
+    </div>
+  );
 }
 
-const COLOR_MAP: Record<string, { border: string; text: string; bg: string; shadow: string }> = {
-  'neon-green': { border: '#39ff14', text: '#39ff14', bg: 'rgba(57,255,20,0.12)', shadow: '0 0 16px rgba(57,255,20,0.35)' },
-  'neon-cyan': { border: '#00f5ff', text: '#00f5ff', bg: 'rgba(0,245,255,0.12)', shadow: '0 0 16px rgba(0,245,255,0.35)' },
-  'neon-yellow': { border: '#ffe066', text: '#ffe066', bg: 'rgba(255,224,102,0.12)', shadow: '0 0 16px rgba(255,224,102,0.35)' },
-  'neon-pink': { border: '#ff2d55', text: '#ff2d55', bg: 'rgba(255,45,85,0.12)', shadow: '0 0 16px rgba(255,45,85,0.35)' },
-};
-
-function ActionButton({ label, sublabel, color, disabled, onClick }: ActionButtonProps) {
-  const c = COLOR_MAP[color];
+function ActionButton({
+  label,
+  onClick,
+  disabled,
+  color,
+  loading,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled: boolean;
+  color: string;
+  loading: boolean;
+}) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex flex-col items-center justify-center py-3 px-2 rounded-lg font-orbitron font-bold text-sm tracking-wider transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+      className="px-5 py-2 rounded-lg font-black uppercase tracking-widest text-sm transition-all duration-200"
       style={{
-        border: `2px solid ${c.border}`,
-        color: c.text,
-        background: c.bg,
-        boxShadow: disabled ? 'none' : c.shadow,
+        background: disabled ? '#1a1a1a' : `${color}22`,
+        color: disabled ? '#444' : color,
+        border: `2px solid ${disabled ? '#333' : color}`,
+        boxShadow: disabled ? 'none' : `0 0 10px ${color}44`,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: loading && !disabled ? 0.7 : 1,
       }}
     >
-      <span>{label}</span>
-      <span className="font-rajdhani text-xs font-normal opacity-70 mt-0.5">{sublabel}</span>
+      {label}
     </button>
   );
 }
@@ -566,76 +636,96 @@ function ActionButton({ label, sublabel, color, disabled, onClick }: ActionButto
 // ── Canvas helpers ─────────────────────────────────────────────────────────────
 function drawHealthBar(
   ctx: CanvasRenderingContext2D,
-  x: number, y: number, w: number, h: number,
-  hp: number, maxHp: number,
+  x: number,
+  y: number,
+  w: number,
+  hp: number,
+  maxHp: number,
   color: string,
-  label: string
+  label: string,
 ) {
   const pct = Math.max(0, hp / maxHp);
+  const barH = 10;
 
   // Background
-  ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, 4);
-  ctx.fill();
+  ctx.fillStyle = '#111';
+  ctx.fillRect(x, y, w, barH);
 
   // Fill
-  if (pct > 0) {
-    ctx.save();
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 8;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.roundRect(x + 2, y + 2, (w - 4) * pct, h - 4, 3);
-    ctx.fill();
-    ctx.restore();
-  }
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+  ctx.fillRect(x, y, w * pct, barH);
+  ctx.shadowBlur = 0;
 
   // Border
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.5;
-  ctx.globalAlpha = 0.6;
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, 4);
-  ctx.stroke();
-  ctx.globalAlpha = 1;
+  ctx.strokeStyle = color + '88';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x, y, w, barH);
 
   // Label
-  ctx.font = 'bold 10px Rajdhani, sans-serif';
+  ctx.font = 'bold 10px "Chakra Petch", monospace';
+  ctx.textAlign = 'center';
   ctx.fillStyle = color;
-  ctx.textAlign = label === 'PLAYER' ? 'left' : 'right';
-  ctx.fillText(`${label}  ${hp}/${maxHp}`, label === 'PLAYER' ? x : x + w, y - 4);
+  ctx.fillText(label, x + w / 2, y - 4);
 }
 
 function drawFallbackGladiator(
   ctx: CanvasRenderingContext2D,
-  cx: number, y: number, w: number, h: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
   color: string,
-  blocking: boolean
+  _isEnemy: boolean,
 ) {
+  // Simple stick-figure gladiator
   ctx.save();
+  ctx.strokeStyle = color;
   ctx.fillStyle = color;
+  ctx.lineWidth = 3;
   ctx.shadowColor = color;
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 10;
 
-  // Body
-  ctx.fillRect(cx - w * 0.2, y + h * 0.3, w * 0.4, h * 0.45);
+  const cx = x + w / 2;
+  const headR = w * 0.18;
+  const torsoTop = y + headR * 2 + 4;
+  const torsoBot = y + h * 0.55;
+  const legBot = y + h * 0.9;
+
   // Head
   ctx.beginPath();
-  ctx.arc(cx, y + h * 0.15, w * 0.18, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.arc(cx, y + headR + 2, headR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Torso
+  ctx.beginPath();
+  ctx.moveTo(cx, torsoTop);
+  ctx.lineTo(cx, torsoBot);
+  ctx.stroke();
+
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(cx - w * 0.35, torsoTop + (torsoBot - torsoTop) * 0.2);
+  ctx.lineTo(cx + w * 0.35, torsoTop + (torsoBot - torsoTop) * 0.2);
+  ctx.stroke();
+
   // Legs
-  ctx.fillRect(cx - w * 0.18, y + h * 0.75, w * 0.15, h * 0.25);
-  ctx.fillRect(cx + w * 0.03, y + h * 0.75, w * 0.15, h * 0.25);
-  // Sword arm
-  if (!blocking) {
-    ctx.fillRect(cx + w * 0.2, y + h * 0.3, w * 0.35, h * 0.08);
-  }
-  // Shield
-  if (blocking) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(cx - w * 0.45, y + h * 0.25, w * 0.2, h * 0.4);
-  }
+  ctx.beginPath();
+  ctx.moveTo(cx, torsoBot);
+  ctx.lineTo(cx - w * 0.25, legBot);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx, torsoBot);
+  ctx.lineTo(cx + w * 0.25, legBot);
+  ctx.stroke();
+
+  // Sword (right arm extended)
+  ctx.beginPath();
+  ctx.moveTo(cx + w * 0.35, torsoTop + (torsoBot - torsoTop) * 0.2);
+  ctx.lineTo(cx + w * 0.7, torsoTop - 10);
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
   ctx.restore();
 }

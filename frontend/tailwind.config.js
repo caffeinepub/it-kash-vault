@@ -8,8 +8,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        orbitron: ['Orbitron', 'monospace'],
-        rajdhani: ['Rajdhani', 'sans-serif'],
+        chakra: ['"Chakra Petch"', 'sans-serif'],
+        exo: ['"Exo 2"', 'sans-serif'],
       },
       colors: {
         background: 'oklch(var(--background) / <alpha-value>)',
@@ -46,11 +46,11 @@ export default {
         input: 'oklch(var(--input) / <alpha-value>)',
         ring: 'oklch(var(--ring) / <alpha-value>)',
         neon: {
-          green: '#39ff14',
+          orange: '#ff6a00',
+          cyan: '#00e5ff',
           pink: '#ff2d78',
-          cyan: '#00f5ff',
-          purple: '#bf5fff',
           yellow: '#ffe600',
+          purple: '#bf5fff',
         },
       },
       borderRadius: {
@@ -59,19 +59,18 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       boxShadow: {
-        'neon-green': '0 0 10px #39ff14, 0 0 20px #39ff14, 0 0 40px #39ff14',
+        'neon-orange': '0 0 10px #ff6a00, 0 0 20px #ff6a00, 0 0 40px #ff6a00',
+        'neon-cyan': '0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 40px #00e5ff',
         'neon-pink': '0 0 10px #ff2d78, 0 0 20px #ff2d78, 0 0 40px #ff2d78',
-        'neon-cyan': '0 0 10px #00f5ff, 0 0 20px #00f5ff, 0 0 40px #00f5ff',
-        'neon-purple': '0 0 10px #bf5fff, 0 0 20px #bf5fff, 0 0 40px #bf5fff',
         'neon-yellow': '0 0 10px #ffe600, 0 0 20px #ffe600, 0 0 40px #ffe600',
-        'neon-green-sm': '0 0 5px #39ff14, 0 0 10px #39ff14',
-        'neon-pink-sm': '0 0 5px #ff2d78, 0 0 10px #ff2d78',
-        'neon-cyan-sm': '0 0 5px #00f5ff, 0 0 10px #00f5ff',
+        'neon-purple': '0 0 10px #bf5fff, 0 0 20px #bf5fff, 0 0 40px #bf5fff',
+        'neon-orange-sm': '0 0 5px #ff6a00, 0 0 10px #ff6a00',
+        'neon-cyan-sm': '0 0 5px #00e5ff, 0 0 10px #00e5ff',
       },
       keyframes: {
         'neon-pulse': {
           '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.7' },
+          '50%': { opacity: '0.65' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },

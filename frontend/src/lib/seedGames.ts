@@ -9,82 +9,52 @@ interface SeedGame {
 
 export const seedGamesData: SeedGame[] = [
   {
-    title: 'GD Runner',
-    description: 'An auto-scrolling platformer inspired by Geometry Dash. Jump over spikes and obstacles as the speed increases!',
+    title: 'Whack-a-Mole',
+    description: 'Whack the moles as fast as you can! Moles pop up randomly — click them before they disappear. 30 seconds on the clock!',
     category: 'Arcade',
-    thumbnail: 'gd-runner-thumb.dim_400x300.png',
+    thumbnail: 'whack-a-mole-thumb.dim_400x300.png',
   },
   {
-    title: 'Snake',
-    description: 'The classic Snake game with a neon cyberpunk twist. Eat food, grow longer, and avoid hitting yourself!',
+    title: 'Dino Runner',
+    description: 'An endless runner where you guide a pixel dinosaur through a desert of cacti. Jump to survive and beat your high score!',
     category: 'Arcade',
-    thumbnail: 'snake-thumb.dim_400x300.png',
+    thumbnail: 'dino-runner-thumb.dim_400x300.png',
   },
   {
-    title: 'Flappy Bird',
-    description: 'Navigate your bird through endless pipe obstacles. One tap to flap, infinite challenge!',
+    title: 'Pong',
+    description: 'The classic two-player paddle game. First to 7 points wins! Use W/S and Arrow keys to control your paddles.',
     category: 'Arcade',
-    thumbnail: 'flappy-bird-thumb.dim_400x300.png',
+    thumbnail: 'pong-thumb.dim_400x300.png',
   },
   {
-    title: 'Breakout',
-    description: 'Smash through colorful bricks with your paddle and ball. Clear all bricks to win!',
-    category: 'Arcade',
-    thumbnail: 'breakout-thumb.dim_400x300.png',
-  },
-  {
-    title: '2048',
-    description: 'Slide and merge tiles to reach the legendary 2048 tile. A deceptively simple puzzle game!',
+    title: 'Memory Match',
+    description: 'Flip cards to find matching pairs. Test your memory with 16 cards and 8 pairs. Track your moves and time!',
     category: 'Puzzle',
-    thumbnail: '2048-thumb.dim_400x300.png',
+    thumbnail: 'memory-match-thumb.dim_400x300.png',
   },
   {
-    title: 'Tetris',
-    description: 'The legendary block-stacking puzzle game. Clear lines, level up, and survive as long as you can!',
+    title: 'Asteroids',
+    description: 'Pilot your spaceship through an asteroid field. Shoot to split and destroy asteroids before they destroy you!',
+    category: 'Shooter',
+    thumbnail: 'asteroids-thumb.dim_400x300.png',
+  },
+  {
+    title: 'Minesweeper',
+    description: 'Reveal the grid without hitting a mine. Use logic to flag dangerous cells and clear the board to win!',
     category: 'Puzzle',
-    thumbnail: 'tetris-thumb.dim_400x300.png',
-  },
-  {
-    title: 'Pac-Man',
-    description: 'Navigate the maze, eat all the dots, and avoid the ghosts. Grab power pellets to turn the tables!',
-    category: 'Arcade',
-    thumbnail: 'pac-man-thumb.dim_400x300.png',
-  },
-  {
-    title: 'Space Invaders',
-    description: 'Defend Earth from waves of alien invaders. Shoot them down before they reach the ground!',
-    category: 'Arcade',
-    thumbnail: 'space-invaders-thumb.dim_400x300.png',
+    thumbnail: 'minesweeper-thumb.dim_400x300.png',
   },
   {
     title: 'Swords & Sandals',
-    description: 'Enter the gladiator arena in this turn-based combat RPG. Attack, block, and use special moves to defeat your opponent!',
+    description: 'Battle as a gladiator in turn-based arena combat against an AI opponent. Attack, block, and unleash special moves to claim victory!',
     category: 'RPG',
-    thumbnail: 'swords-sandals-thumb.dim_400x300.png',
+    thumbnail: 'swords-sandals.dim_400x300.png',
   },
   {
-    title: 'Among Us',
-    description: 'Complete tasks as a crewmate or eliminate everyone as the impostor. Can you survive the vote?',
-    category: 'Social',
-    thumbnail: 'among-us-thumb.dim_400x300.png',
-  },
-  {
-    title: 'Tung Tung Tung',
-    description: 'Click the neon drum as fast as you can! Build combos and rack up the highest score in this addictive clicker!',
-    category: 'Clicker',
-    thumbnail: 'tung-tung-tung-thumb.dim_400x300.png',
-  },
-  {
-    title: 'Block Blast',
-    description: 'Place polyomino blocks on the grid to fill and clear rows and columns. How long can you keep the board clear?',
-    category: 'Puzzle',
-    thumbnail: 'block-blast-thumb.dim_400x300.png',
-  },
-  {
-    title: '67 Clicker',
-    description: 'Click the iconic six seven meme to rack up points! Build combos with rapid clicks and chase the ultimate high score.',
-    category: 'Clicker',
-    thumbnail: '67-clicker.dim_256x256.png',
+    title: 'Retro Bowl',
+    description: 'Lead your team to glory in this retro-style American football game. Call plays, throw passes, and score touchdowns across 4 quarters!',
+    category: 'Sports',
+    thumbnail: 'retro-bowl.png',
   },
 ];
 
@@ -92,20 +62,33 @@ export async function seedInitialGames(
   getAllGames: () => Promise<Game[]>,
   addGame: (title: string, description: string, category: string, thumbnail: string) => Promise<void>
 ): Promise<void> {
+  let existingTitles: Set<string>;
+
   try {
     const existingGames = await getAllGames();
-    const existingTitles = new Set(existingGames.map((g) => g.title));
-
-    for (const game of seedGamesData) {
-      if (!existingTitles.has(game.title)) {
-        try {
-          await addGame(game.title, game.description, game.category, game.thumbnail);
-        } catch (err) {
-          console.warn(`Failed to seed game "${game.title}":`, err);
-        }
-      }
-    }
+    existingTitles = new Set(existingGames.map((g) => g.title));
+    console.log(`[Seed] Found ${existingGames.length} existing games.`);
   } catch (err) {
-    console.warn('Failed to seed games:', err);
+    console.error('[Seed] Failed to fetch existing games:', err);
+    existingTitles = new Set();
   }
+
+  let added = 0;
+  let skipped = 0;
+
+  for (const game of seedGamesData) {
+    if (existingTitles.has(game.title)) {
+      skipped++;
+      continue;
+    }
+    try {
+      await addGame(game.title, game.description, game.category, game.thumbnail);
+      console.log(`[Seed] Added game: "${game.title}"`);
+      added++;
+    } catch (err) {
+      console.error(`[Seed] Failed to add game "${game.title}":`, err);
+    }
+  }
+
+  console.log(`[Seed] Done. Added: ${added}, Skipped (already exist): ${skipped}`);
 }

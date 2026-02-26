@@ -1,13 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 25,
+  "projectStateVersion": 37,
   "summary": "A web-based gaming platform similar to Geometry Dash (GD) where users can play lots of games.",
   "architectural_notes": [
     "Web-based gaming platform inspired by Geometry Dash; should support multiple embedded/playable browser games"
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Edit Images\n- Crop and resize to a square with transparent-friendly framing, preserving the wooden stick character subject (IMG_0282.jpeg > tung-character.dim_300x300.png)",
   "existing_features": [
     {
       "id": "feature-build-an-in-browser-geometry-dash-inspired-platformer-rhythm-game-using-react-three-fiber-three-js-the-game-must-feature-a-player-cube-that-auto-scrolls-to-the-right-procedurally-generated-spike-and-platform-obstacles-jump-mechanic-on-click-spacebar-increasing-speed-over-time-and-a-score-counter-based-on-distance-traveled-display-a-game-over-screen-on-collision-with-a-restart-option",
@@ -280,6 +279,182 @@
         "REQ-35"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-build-a-homepage-game-library-page-that-displays-all-games-from-the-backend-as-a-responsive-grid-of-cards-each-card-shows-the-game-thumbnail-title-category-badge-and-play-count-include-a-category-filter-bar-to-filter-cards-by-genre-clicking-a-card-navigates-to-that-game-s-play-page-and-calls-incrementplaycount-on-the-backend",
+      "title": "Build a homepage game library page that displays all games from the backend as a responsive grid of cards. Each card shows the game thumbnail, title, category badge, and play count. Include a category filter bar to filter cards by genre. Clicking a card navigates to that game's play page and calls incrementPlayCount on the backend.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-fresh-cohesive-visual-theme-across-all-pages-deep-space-dark-background-near-black-vivid-neon-orange-and-cyan-accent-colors-futuristic-bold-sans-serif-typography-e-g-exo-2-or-chakra-petch-from-google-fonts-glowing-card-hover-effects-and-a-top-navigation-bar-with-the-platform-logo-title-random-arcade-use-a-subtle-star-field-or-grid-background-texture-enforce-the-theme-consistently-across-the-library-game-pages-navigation-and-footer",
+      "title": "Apply a fresh cohesive visual theme across all pages: deep-space dark background (near-black), vivid neon orange and cyan accent colors, futuristic bold sans-serif typography (e.g., Exo 2 or Chakra Petch from Google Fonts), glowing card hover effects, and a top navigation bar with the platform logo/title 'RANDOM ARCADE'. Use a subtle star-field or grid background texture. Enforce the theme consistently across the library, game pages, navigation, and footer.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-whack-a-mole-game-using-react-and-canvas-moles-pop-up-randomly-from-9-holes-arranged-in-a-3-3-grid-the-player-clicks-a-mole-before-it-retreats-to-score-a-point-the-game-runs-for-30-seconds-display-a-countdown-timer-and-score-show-a-game-over-screen-with-the-final-score-and-a-play-again-button-style-with-the-site-s-neon-theme",
+      "title": "Build an in-browser Whack-a-Mole game using React and canvas. Moles pop up randomly from 9 holes arranged in a 3×3 grid. The player clicks a mole before it retreats to score a point. The game runs for 30 seconds; display a countdown timer and score. Show a game-over screen with the final score and a 'Play Again' button. Style with the site's neon theme.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-dino-runner-endless-runner-game-using-react-and-canvas-a-pixel-style-dinosaur-automatically-runs-forward-the-player-presses-space-or-clicks-taps-to-jump-over-procedurally-spawned-cacti-speed-increases-over-time-display-a-score-based-on-distance-traveled-show-a-game-over-screen-with-a-restart-button-on-collision",
+      "title": "Build an in-browser Dino Runner endless runner game using React and canvas. A pixel-style dinosaur automatically runs forward; the player presses Space or clicks/taps to jump over procedurally spawned cacti. Speed increases over time. Display a score based on distance traveled. Show a game-over screen with a restart button on collision.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-pong-game-using-react-and-canvas-two-paddles-left-controlled-by-w-s-keys-right-controlled-by-up-down-arrow-keys-bounce-a-ball-back-and-forth-the-first-player-to-reach-7-points-wins-display-each-player-s-score-show-a-win-screen-with-a-play-again-button-style-with-the-site-s-neon-theme",
+      "title": "Build an in-browser Pong game using React and canvas. Two paddles (left controlled by W/S keys, right controlled by Up/Down arrow keys) bounce a ball back and forth. The first player to reach 7 points wins. Display each player's score. Show a win screen with a 'Play Again' button. Style with the site's neon theme.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-memory-card-match-game-using-react-display-a-grid-of-16-face-down-cards-8-matching-pairs-with-distinct-neon-icons-or-colors-the-player-flips-two-cards-per-turn-matched-pairs-stay-revealed-track-the-number-of-moves-and-elapsed-time-show-a-congratulations-screen-when-all-pairs-are-matched-displaying-move-count-and-time-with-a-play-again-button",
+      "title": "Build an in-browser Memory Card Match game using React. Display a grid of 16 face-down cards (8 matching pairs with distinct neon icons or colors). The player flips two cards per turn; matched pairs stay revealed. Track the number of moves and elapsed time. Show a congratulations screen when all pairs are matched, displaying move count and time, with a 'Play Again' button.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-asteroids-style-shooting-game-using-react-and-canvas-the-player-controls-a-spaceship-that-rotates-with-left-right-arrow-keys-thrusts-forward-with-the-up-arrow-and-fires-bullets-with-space-asteroids-drift-across-the-screen-shooting-a-large-asteroid-splits-it-into-smaller-ones-the-game-ends-when-the-ship-collides-with-an-asteroid-display-score-and-a-game-over-screen-with-a-restart-button",
+      "title": "Build an in-browser Asteroids-style shooting game using React and canvas. The player controls a spaceship that rotates with left/right arrow keys, thrusts forward with the up arrow, and fires bullets with Space. Asteroids drift across the screen; shooting a large asteroid splits it into smaller ones. The game ends when the ship collides with an asteroid. Display score and a game-over screen with a restart button.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-minesweeper-game-using-react-display-a-9-9-grid-with-10-hidden-mines-left-click-reveals-a-cell-right-click-flags-it-reveal-all-safe-cells-to-win-reveal-a-mine-to-lose-show-a-mine-counter-a-timer-and-a-new-game-button-display-a-win-or-lose-screen-at-game-end",
+      "title": "Build an in-browser Minesweeper game using React. Display a 9×9 grid with 10 hidden mines. Left-click reveals a cell; right-click flags it. Reveal all safe cells to win; reveal a mine to lose. Show a mine counter, a timer, and a 'New Game' button. Display a win or lose screen at game end.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-all-6-new-games-whack-a-mole-dino-runner-pong-memory-match-asteroids-minesweeper-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-each-game-s-title-slug-must-map-to-its-component-increment-the-play-count-on-mount-for-each-game-page",
+      "title": "Register all 6 new games (Whack-a-Mole, Dino Runner, Pong, Memory Match, Asteroids, Minesweeper) in the game routing map in frontend/src/pages/GamePage.tsx. Each game's title slug must map to its component. Increment the play count on mount for each game page.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-populate-frontend-src-lib-seedgames-ts-with-seed-entries-for-all-6-new-games-whack-a-mole-arcade-dino-runner-arcade-pong-arcade-memory-match-puzzle-asteroids-shooter-and-minesweeper-puzzle-each-entry-must-include-a-title-short-description-category-and-thumbnail-filename-the-seed-function-must-add-any-missing-games-to-the-backend-on-first-load",
+      "title": "Populate frontend/src/lib/seedGames.ts with seed entries for all 6 new games: Whack-a-Mole (Arcade), Dino Runner (Arcade), Pong (Arcade), Memory Match (Puzzle), Asteroids (Shooter), and Minesweeper (Puzzle). Each entry must include a title, short description, category, and thumbnail filename. The seed function must add any missing games to the backend on first load.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-homepage-hero-section-to-feature-dino-runner-as-the-flagship-featured-game-replacing-any-previous-featured-game-the-hero-banner-must-show-the-game-thumbnail-title-a-short-description-and-a-visible-play-now-button-that-navigates-to-the-dino-runner-game-page-and-increments-its-play-count",
+      "title": "Update the homepage hero section to feature 'Dino Runner' as the flagship/featured game, replacing any previous featured game. The hero banner must show the game thumbnail, title, a short description, and a visible 'Play Now' button that navigates to the Dino Runner game page and increments its play count.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-html-page-title-in-frontend-index-html-and-all-navigation-footer-branding-to-random-arcade-replacing-any-previous-platform-name",
+      "title": "Update the HTML page title in frontend/index.html and all Navigation/Footer branding to 'RANDOM ARCADE', replacing any previous platform name.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-full-swords-and-sandals-style-gladiator-combat-game-in-frontend-src-components-games-swordsandsandalsgame-tsx-currently-an-empty-file-the-game-must-be-canvas-based-using-react-the-player-controls-a-gladiator-on-the-left-side-of-an-arena-against-an-ai-opponent-on-the-right-combat-is-turn-based-the-player-chooses-from-attack-block-or-special-move-actions-via-on-screen-buttons-attacks-deal-randomized-damage-blocks-reduce-incoming-damage-by-a-significant-percentage-special-move-deals-high-damage-with-a-cooldown-each-gladiator-has-a-health-bar-displayed-above-their-sprite-show-the-current-round-number-display-a-victory-screen-when-the-enemy-s-health-reaches-zero-and-a-defeat-screen-when-the-player-s-health-reaches-zero-both-with-a-play-again-restart-button-style-the-game-with-the-site-s-dark-neon-arcade-theme-near-black-background-neon-orange-cyan-accents-chakra-petch-or-exo-2-typography-neon-glow-effects-consistent-with-other-game-components",
+      "title": "Implement the full Swords and Sandals-style gladiator combat game in frontend/src/components/games/SwordsAndSandalsGame.tsx (currently an empty file). The game must be canvas-based using React. The player controls a gladiator on the left side of an arena against an AI opponent on the right. Combat is turn-based: the player chooses from Attack, Block, or Special Move actions via on-screen buttons. Attacks deal randomized damage; blocks reduce incoming damage by a significant percentage; Special Move deals high damage with a cooldown. Each gladiator has a health bar displayed above their sprite. Show the current round number. Display a victory screen when the enemy's health reaches zero and a defeat screen when the player's health reaches zero, both with a 'Play Again' restart button. Style the game with the site's dark neon arcade theme (near-black background, neon orange/cyan accents, Chakra Petch or Exo 2 typography, neon glow effects) consistent with other game components.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-swords-and-sandals-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-the-title-slug-derived-from-the-seeded-title-e-g-swords-sandals-or-matching-the-exact-seed-entry-title-slug-must-map-to-the-swordsandsandalsgame-component-increment-the-play-count-on-mount-when-navigating-to-this-game-page",
+      "title": "Register the Swords and Sandals game in the game routing map in frontend/src/pages/GamePage.tsx. The title slug derived from the seeded title (e.g., 'swords-sandals' or matching the exact seed entry title slug) must map to the SwordsAndSandalsGame component. Increment the play count on mount when navigating to this game page.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-swords-and-sandals-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-title-swords-sandals-a-short-description-e-g-battle-as-a-gladiator-in-turn-based-arena-combat-against-an-ai-opponent-category-rpg-and-thumbnail-filename-swords-sandals-png-the-seed-function-must-add-the-game-to-the-backend-if-it-is-not-already-present",
+      "title": "Add the Swords and Sandals game to the seed games list in frontend/src/lib/seedGames.ts with title 'Swords & Sandals', a short description (e.g., 'Battle as a gladiator in turn-based arena combat against an AI opponent.'), category 'RPG', and thumbnail filename 'swords-sandals.png'. The seed function must add the game to the backend if it is not already present.",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-in-browser-retro-bowl-style-american-football-game-using-react-and-canvas-the-player-controls-an-offense-team-tap-click-to-select-a-receiver-route-then-tap-click-again-to-throw-the-ball-the-quarterback-automatically-scrambles-if-no-throw-is-made-the-defense-is-ai-controlled-each-drive-starts-with-a-play-selection-pass-or-run-implement-first-downs-gain-10-yards-in-4-downs-touchdowns-field-goals-on-4th-down-and-turnovers-on-downs-track-score-for-both-teams-and-the-current-quarter-4-quarters-display-a-final-score-screen-at-game-end-with-a-play-again-button-style-the-game-with-the-site-s-dark-neon-arcade-theme-near-black-background-neon-orange-and-cyan-accents-chakra-petch-or-exo-2-typography-neon-glow-effects-consistent-with-other-game-components",
+      "title": "Build an in-browser Retro Bowl-style American football game using React and canvas. The player controls an offense team: tap/click to select a receiver route, then tap/click again to throw the ball. The quarterback automatically scrambles if no throw is made. The defense is AI-controlled. Each drive starts with a play selection (pass or run). Implement first downs (gain 10 yards in 4 downs), touchdowns, field goals on 4th down, and turnovers on downs. Track score for both teams and the current quarter (4 quarters). Display a final score screen at game end with a 'Play Again' button. Style the game with the site's dark neon arcade theme (near-black background, neon orange and cyan accents, Chakra Petch or Exo 2 typography, neon glow effects) consistent with other game components.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-retro-bowl-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-the-title-slug-derived-from-the-seeded-title-e-g-retro-bowl-must-map-to-the-retrobowlgame-component-increment-the-play-count-on-mount-when-navigating-to-this-game-page",
+      "title": "Register the Retro Bowl game in the game routing map in frontend/src/pages/GamePage.tsx. The title slug derived from the seeded title (e.g., 'retro-bowl') must map to the RetroBowlGame component. Increment the play count on mount when navigating to this game page.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-retro-bowl-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-title-retro-bowl-a-short-description-e-g-lead-your-team-to-glory-in-this-retro-style-american-football-game-category-sports-and-thumbnail-filename-retro-bowl-png-the-seed-function-must-add-the-game-to-the-backend-if-it-is-not-already-present",
+      "title": "Add the Retro Bowl game to the seed games list in frontend/src/lib/seedGames.ts with title 'Retro Bowl', a short description (e.g., 'Lead your team to glory in this retro-style American football game.'), category 'Sports', and thumbnail filename 'retro-bowl.png'. The seed function must add the game to the backend if it is not already present.",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-seed-initialization-in-frontend-src-lib-seedgames-ts-so-that-all-seeded-games-are-reliably-added-to-the-backend-on-first-load-the-no-games-found-games-are-loading-state-persists-indefinitely-on-the-homepage-indicating-the-seed-function-either-fails-silently-is-never-called-or-the-backend-actor-is-not-ready-when-it-runs-ensure-the-seed-function-awaits-actor-readiness-before-attempting-to-add-games-retries-or-re-triggers-if-the-actor-is-not-yet-initialized-and-correctly-handles-the-case-where-some-or-all-games-already-exist-without-short-circuiting-the-remaining-inserts",
+      "title": "Fix the seed initialization in frontend/src/lib/seedGames.ts so that all seeded games are reliably added to the backend on first load. The 'No games found / Games are loading...' state persists indefinitely on the homepage, indicating the seed function either fails silently, is never called, or the backend actor is not ready when it runs. Ensure the seed function awaits actor readiness before attempting to add games, retries or re-triggers if the actor is not yet initialized, and correctly handles the case where some or all games already exist without short-circuiting the remaining inserts.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-homepage-game-library-in-frontend-src-pages-homepage-tsx-to-correctly-display-the-loading-state-vs-the-empty-state-currently-no-games-found-and-games-are-loading-are-shown-simultaneously-while-games-are-being-fetched-or-seeded-show-only-a-loading-skeleton-spinner-only-show-no-games-found-after-loading-has-fully-completed-and-the-returned-game-list-is-genuinely-empty",
+      "title": "Fix the homepage game library in frontend/src/pages/HomePage.tsx to correctly display the loading state vs. the empty state. Currently 'No games found' and 'Games are loading...' are shown simultaneously. While games are being fetched or seeded, show only a loading skeleton/spinner. Only show 'No games found' after loading has fully completed and the returned game list is genuinely empty.",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-completely-rewrite-the-retrobowlgame-component-in-frontend-src-components-games-retrobowlgame-tsx-to-faithfully-replicate-the-original-retro-bowl-game-s-mechanics-visuals-and-feel-the-game-must-be-rendered-on-an-html5-canvas-using-react-core-mechanics-to-implement-1-top-down-isometric-style-field-view-with-yard-lines-and-end-zones-clearly-marked-2-the-player-controls-the-quarterback-on-offense-tap-click-to-select-a-receiver-running-a-visible-route-receivers-animate-down-their-routes-then-tap-click-again-on-the-receiver-to-throw-the-ball-with-a-leading-pass-arc-the-ball-should-travel-realistically-toward-the-selected-target-3-if-the-player-does-not-throw-in-time-the-qb-scrambles-runs-automatically-4-on-run-plays-the-ball-carrier-runs-forward-with-the-player-steering-by-tapping-left-right-or-clicking-direction-5-the-defense-is-fully-ai-controlled-with-defenders-pursuing-the-ball-carrier-and-attempting-to-intercept-or-tackle-6-implement-complete-football-rules-4-downs-to-gain-10-yards-for-a-first-down-touchdown-6-pts-extra-point-attempt-1-pt-field-goal-option-on-4th-down-3-pts-safety-2-pts-punt-option-on-4th-down-turnovers-on-downs-7-cpu-team-also-possesses-the-ball-on-offense-with-ai-controlled-qb-decisions-passing-or-running-8-track-and-display-score-for-both-teams-home-vs-away-current-quarter-4-quarters-time-remaining-per-quarter-down-distance-and-yard-line-9-play-calling-screen-before-each-offensive-play-choose-from-pass-with-2-3-route-options-shown-or-run-with-direction-options-10-receiver-routes-rendered-as-dotted-dashed-lines-on-the-field-before-the-snap-11-tackle-collision-animations-when-the-ball-carrier-is-brought-down-12-display-a-halftime-screen-between-q2-and-q3-13-display-a-final-score-screen-at-game-end-with-win-loss-result-and-a-play-again-button-style-the-game-to-closely-match-retro-bowl-s-retro-pixel-chunky-aesthetic-use-bold-blocky-player-sprites-drawn-on-canvas-bright-green-field-with-white-yard-lines-and-hash-marks-visible-team-colors-for-each-side-and-a-dark-hud-bar-at-the-top-showing-all-game-info-use-chakra-petch-or-exo-2-typography-for-all-hud-and-ui-text",
+      "title": "Completely rewrite the RetroBowlGame component in frontend/src/components/games/RetroBowlGame.tsx to faithfully replicate the original Retro Bowl game's mechanics, visuals, and feel. The game must be rendered on an HTML5 canvas using React. Core mechanics to implement: (1) Top-down/isometric-style field view with yard lines and end zones clearly marked. (2) The player controls the quarterback on offense — tap/click to select a receiver running a visible route (receivers animate down their routes), then tap/click again on the receiver to throw the ball with a leading-pass arc. The ball should travel realistically toward the selected target. (3) If the player does not throw in time, the QB scrambles/runs automatically. (4) On run plays, the ball carrier runs forward with the player steering by tapping left/right or clicking direction. (5) The defense is fully AI-controlled with defenders pursuing the ball carrier and attempting to intercept or tackle. (6) Implement complete football rules: 4 downs to gain 10 yards for a first down; touchdown (6 pts) + extra point attempt (1 pt); field goal option on 4th down (3 pts); safety (2 pts); punt option on 4th down; turnovers on downs. (7) CPU team also possesses the ball on offense with AI-controlled QB decisions — passing or running. (8) Track and display score for both teams (home vs away), current quarter (4 quarters), time remaining per quarter, down & distance, and yard line. (9) Play-calling screen before each offensive play: choose from Pass (with 2–3 route options shown) or Run (with direction options). (10) Receiver routes rendered as dotted/dashed lines on the field before the snap. (11) Tackle/collision animations when the ball carrier is brought down. (12) Display a halftime screen between Q2 and Q3. (13) Display a final score screen at game end with win/loss result and a 'Play Again' button. Style the game to closely match Retro Bowl's retro pixel/chunky aesthetic — use bold blocky player sprites drawn on canvas, bright green field with white yard lines and hash marks, visible team colors for each side, and a dark HUD bar at the top showing all game info. Use Chakra Petch or Exo 2 typography for all HUD and UI text.",
+      "reqIds": [
+        "REQ-58"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rewrite-the-retrobowlgame-component-in-frontend-src-components-games-retrobowlgame-tsx-to-more-faithfully-replicate-the-look-feel-and-mechanics-of-the-original-retro-bowl-mobile-game-the-field-must-use-a-top-down-perspective-with-a-bright-green-pitch-white-yard-lines-hash-marks-and-clearly-marked-end-zones-player-sprites-must-be-bold-and-blocky-retro-pixel-chunky-style-with-distinct-team-colors-for-each-side-the-hud-bar-at-the-top-must-display-score-home-vs-away-quarter-time-remaining-down-distance-and-current-yard-line-on-offense-the-player-taps-clicks-to-select-a-receiver-running-an-animated-route-routes-shown-as-dotted-lines-before-the-snap-then-taps-clicks-again-to-throw-with-a-realistic-leading-pass-arc-if-no-throw-is-made-in-time-the-qb-scrambles-automatically-on-run-plays-the-ball-carrier-runs-forward-and-the-player-steers-left-right-by-clicking-tapping-ai-defenders-actively-pursue-the-ball-carrier-and-attempt-tackles-and-interceptions-full-football-rules-must-be-enforced-4-downs-to-gain-10-yards-for-a-first-down-touchdown-6-pts-extra-point-attempt-1-pt-field-goal-option-on-4th-down-3-pts-safety-2-pts-punt-option-on-4th-down-turnover-on-downs-the-cpu-team-controls-its-own-offense-with-ai-qb-decision-making-pass-or-run-a-play-calling-screen-appears-before-each-offensive-play-with-pass-2-3-visible-route-options-and-run-direction-options-choices-tackle-collision-animations-play-when-the-ball-carrier-is-brought-down-a-halftime-screen-appears-between-q2-and-q3-a-final-score-screen-with-win-loss-result-and-a-play-again-button-appears-at-game-end-use-chakra-petch-or-exo-2-typography-for-all-hud-and-ui-text-consistent-with-the-site-s-neon-theme",
+      "title": "Rewrite the RetroBowlGame component in frontend/src/components/games/RetroBowlGame.tsx to more faithfully replicate the look, feel, and mechanics of the original Retro Bowl mobile game. The field must use a top-down perspective with a bright green pitch, white yard lines, hash marks, and clearly marked end zones. Player sprites must be bold and blocky (retro pixel/chunky style) with distinct team colors for each side. The HUD bar at the top must display score (home vs. away), quarter, time remaining, down & distance, and current yard line. On offense, the player taps/clicks to select a receiver running an animated route (routes shown as dotted lines before the snap), then taps/clicks again to throw with a realistic leading-pass arc. If no throw is made in time the QB scrambles automatically. On run plays the ball carrier runs forward and the player steers left/right by clicking/tapping. AI defenders actively pursue the ball carrier and attempt tackles and interceptions. Full football rules must be enforced: 4 downs to gain 10 yards for a first down; touchdown (6 pts) + extra point attempt (1 pt); field goal option on 4th down (3 pts); safety (2 pts); punt option on 4th down; turnover on downs. The CPU team controls its own offense with AI QB decision-making (pass or run). A play-calling screen appears before each offensive play with Pass (2–3 visible route options) and Run (direction options) choices. Tackle/collision animations play when the ball carrier is brought down. A halftime screen appears between Q2 and Q3. A final score screen with win/loss result and a 'Play Again' button appears at game end. Use Chakra Petch or Exo 2 typography for all HUD and UI text, consistent with the site's neon theme.",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -330,6 +505,40 @@
     {
       "id": "AR-8",
       "summary": "Add a '67 Clicker' game based on the 'six seven' meme, similar to the Tung Tung Tung clicker style",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Rebuild/create a new entire website featuring a fresh set of random games",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Create a new backend Motoko actor that stores a game catalog. Each game entry has: title (Text), description (Text), category (Text), thumbnailFilename (Text), and playCount (Nat). Expose functions: addGame, deleteGame, getAllGames, getGamesByCategory, getGameByTitle, incrementPlayCount, and getMostPopular.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Add an in-browser Retro Bowl-style American football game",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Audit and fix the backend Motoko actor in backend/main.mo to ensure the addGame function is idempotent and that getAllGames returns all stored games without error. Verify that the actor's stable state is not lost between upgrades and that the Map used for storage is correctly initialized and persisted.",
+      "reqIds": [
+        "REQ-57"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Revamp the Retro Bowl game to match the original Retro Bowl game's mechanics, visuals, and feel as closely as possible",
       "reqIds": [],
       "status": "pending"
     }

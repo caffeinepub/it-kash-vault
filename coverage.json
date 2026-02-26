@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T05:59:58.018Z",
+  "generatedAt": "2026-02-26T07:00:45.573Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,14 +11,14 @@
     "implemented": 1,
     "items": [
       {
-        "id": "REQ-35",
-        "summary": "Save the uploaded image (IMG_0282.jpeg) as a static asset at frontend/public/assets/generated/tung-character.dim_300x300.png and use it as the central clickable character in the TungTungGame component (frontend/src/components/games/TungTungGame.tsx). Replace any previously programmatically drawn drum/stick figure with this image rendered on the canvas. The image should pulse/scale slightly when idle and shake/flash on click, consistent with the existing clicker game hit effect mechanics.",
+        "id": "REQ-59",
+        "summary": "Rewrite the RetroBowlGame component in frontend/src/components/games/RetroBowlGame.tsx to more faithfully replicate the look, feel, and mechanics of the original Retro Bowl mobile game. The field must use a top-down perspective with a bright green pitch, white yard lines, hash marks, and clearly marked end zones. Player sprites must be bold and blocky (retro pixel/chunky style) with distinct team colors for each side. The HUD bar at the top must display score (home vs. away), quarter, time remaining, down & distance, and current yard line. On offense, the player taps/clicks to select a receiver running an animated route (routes shown as dotted lines before the snap), then taps/clicks again to throw with a realistic leading-pass arc. If no throw is made in time the QB scrambles automatically. On run plays the ball carrier runs forward and the player steers left/right by clicking/tapping. AI defenders actively pursue the ball carrier and attempt tackles and interceptions. Full football rules must be enforced: 4 downs to gain 10 yards for a first down; touchdown (6 pts) + extra point attempt (1 pt); field goal option on 4th down (3 pts); safety (2 pts); punt option on 4th down; turnover on downs. The CPU team controls its own offense with AI QB decision-making (pass or run). A play-calling screen appears before each offensive play with Pass (2–3 visible route options) and Run (direction options) choices. Tackle/collision animations play when the ball carrier is brought down. A halftime screen appears between Q2 and Q3. A final score screen with win/loss result and a 'Play Again' button appears at game end. Use Chakra Petch or Exo 2 typography for all HUD and UI text, consistent with the site's neon theme.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/games/TungTungGame.tsx"
+          "frontend/src/components/games/RetroBowlGame.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/games/TungTungGame.tsx"
+          "frontend/src/components/games/RetroBowlGame.tsx"
         ]
       }
     ]
@@ -28,8 +28,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/tung-character.dim_300x300.png",
-    "frontend/src/components/games/TungTungGame.tsx",
+    "frontend/src/components/games/RetroBowlGame.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

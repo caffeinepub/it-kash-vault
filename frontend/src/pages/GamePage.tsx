@@ -2,34 +2,26 @@ import { useEffect } from 'react';
 import { useParams, Link } from '@tanstack/react-router';
 import { useIncrementPlayCount } from '../hooks/useQueries';
 import { ArrowLeft, Gamepad2 } from 'lucide-react';
-import GeometryDashGame from '../components/games/GeometryDashGame';
-import SnakeGame from '../components/games/SnakeGame';
-import FlappyBirdGame from '../components/games/FlappyBirdGame';
-import BreakoutGame from '../components/games/BreakoutGame';
-import Game2048 from '../components/games/Game2048';
-import TetrisGame from '../components/games/TetrisGame';
-import { PacManGame } from '../components/games/PacManGame';
-import { SpaceInvadersGame } from '../components/games/SpaceInvadersGame';
-import { SwordsAndSandalsGame } from '../components/games/SwordsAndSandalsGame';
-import { AmongUsGame } from '../components/games/AmongUsGame';
-import TungTungGame from '../components/games/TungTungGame';
-import BlockBlastGame from '../components/games/BlockBlastGame';
-import SixSevenGame from '../components/games/SixSevenGame';
+import WhackAMoleGame from '../components/games/WhackAMoleGame';
+import DinoRunnerGame from '../components/games/DinoRunnerGame';
+import PongGame from '../components/games/PongGame';
+import MemoryMatchGame from '../components/games/MemoryMatchGame';
+import AsteroidsGame from '../components/games/AsteroidsGame';
+import MinesweeperGame from '../components/games/MinesweeperGame';
+import SwordsAndSandalsGame from '../components/games/SwordsAndSandalsGame';
+import RetroBowlGame from '../components/games/RetroBowlGame';
 
 const GAME_MAP: Record<string, { component: React.ComponentType; title: string }> = {
-  'gd runner': { component: GeometryDashGame, title: 'GD Runner' },
-  'snake': { component: SnakeGame, title: 'Snake' },
-  'flappy bird': { component: FlappyBirdGame, title: 'Flappy Bird' },
-  'breakout': { component: BreakoutGame, title: 'Breakout' },
-  '2048': { component: Game2048, title: '2048' },
-  'tetris': { component: TetrisGame, title: 'Tetris' },
-  'pac-man': { component: PacManGame, title: 'Pac-Man' },
-  'space invaders': { component: SpaceInvadersGame, title: 'Space Invaders' },
+  'whack-a-mole': { component: WhackAMoleGame, title: 'Whack-a-Mole' },
+  'dino runner': { component: DinoRunnerGame, title: 'Dino Runner' },
+  'pong': { component: PongGame, title: 'Pong' },
+  'memory match': { component: MemoryMatchGame, title: 'Memory Match' },
+  'asteroids': { component: AsteroidsGame, title: 'Asteroids' },
+  'minesweeper': { component: MinesweeperGame, title: 'Minesweeper' },
   'swords & sandals': { component: SwordsAndSandalsGame, title: 'Swords & Sandals' },
-  'among us': { component: AmongUsGame, title: 'Among Us' },
-  'tung tung tung': { component: TungTungGame, title: 'Tung Tung Tung' },
-  'block blast': { component: BlockBlastGame, title: 'Block Blast' },
-  '67 clicker': { component: SixSevenGame, title: '67 Clicker' },
+  'swords-sandals': { component: SwordsAndSandalsGame, title: 'Swords & Sandals' },
+  'retro bowl': { component: RetroBowlGame, title: 'Retro Bowl' },
+  'retro-bowl': { component: RetroBowlGame, title: 'Retro Bowl' },
 };
 
 export default function GamePage() {
@@ -50,14 +42,14 @@ export default function GamePage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
         <Gamepad2 className="w-20 h-20 text-muted-foreground mb-6 opacity-30" />
-        <h1 className="font-orbitron text-4xl font-black neon-text-pink mb-4">404</h1>
-        <p className="font-orbitron text-xl text-muted-foreground mb-2">Game Not Found</p>
-        <p className="font-rajdhani text-muted-foreground mb-8">
+        <h1 className="font-chakra text-4xl font-black neon-text-orange mb-4">404</h1>
+        <p className="font-chakra text-xl text-muted-foreground mb-2">Game Not Found</p>
+        <p className="font-exo text-muted-foreground mb-8">
           The game "{decodeURIComponent(title)}" doesn't exist in our arcade.
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 bg-neon-green text-background font-orbitron font-bold text-sm uppercase tracking-widest px-6 py-3 rounded-lg shadow-neon-green-sm hover:shadow-neon-green transition-all duration-300"
+          className="inline-flex items-center gap-2 bg-neon-orange text-background font-chakra font-bold text-sm uppercase tracking-widest px-6 py-3 rounded-lg shadow-neon-orange-sm hover:shadow-neon-orange transition-all duration-300"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Arcade
@@ -74,7 +66,7 @@ export default function GamePage() {
         <div className="mb-6">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-neon-green transition-colors duration-200 font-rajdhani font-semibold text-sm uppercase tracking-widest"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-neon-orange transition-colors duration-200 font-exo font-semibold text-sm uppercase tracking-widest"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Arcade
@@ -82,7 +74,7 @@ export default function GamePage() {
         </div>
 
         <div className="mb-6">
-          <h1 className="font-orbitron text-3xl font-black neon-text-green">{gameEntry.title}</h1>
+          <h1 className="font-chakra text-3xl font-black neon-text-orange">{gameEntry.title}</h1>
         </div>
 
         <div className="flex justify-center">

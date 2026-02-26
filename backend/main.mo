@@ -1,10 +1,13 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
-import Array "mo:core/Array";
-import Runtime "mo:core/Runtime";
+import Text "mo:core/Text";
 import Order "mo:core/Order";
+import Array "mo:core/Array";
 import Iter "mo:core/Iter";
+import Runtime "mo:core/Runtime";
 import MixinStorage "blob-storage/Mixin";
+
+
 
 actor {
   include MixinStorage();
@@ -36,7 +39,6 @@ actor {
   let games = Map.empty<Text, Game>();
 
   public shared ({ caller }) func addGame(title : Text, description : Text, category : Text, thumbnail : Text) : async () {
-    if (games.containsKey(title)) { Runtime.trap("Game already exists") };
     let game : Game = {
       title;
       description;

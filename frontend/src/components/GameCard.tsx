@@ -7,32 +7,35 @@ interface GameCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  Arcade: 'text-neon-cyan border-neon-cyan',
-  Puzzle: 'text-neon-purple border-neon-purple',
-  RPG: 'text-neon-yellow border-neon-yellow',
-  Social: 'text-neon-pink border-neon-pink',
-  Clicker: 'text-neon-green border-neon-green',
+  Arcade: 'text-neon-orange border-neon-orange',
+  Puzzle: 'text-neon-cyan border-neon-cyan',
+  Shooter: 'text-neon-pink border-neon-pink',
 };
 
-const categoryGlow: Record<string, string> = {
-  Arcade: 'hover:shadow-neon-cyan',
-  Puzzle: 'hover:shadow-neon-purple',
-  RPG: 'hover:shadow-neon-yellow',
-  Social: 'hover:shadow-neon-pink',
-  Clicker: 'hover:shadow-neon-green',
+const categoryGlowHover: Record<string, string> = {
+  Arcade: 'hover:shadow-neon-orange hover:border-neon-orange/60',
+  Puzzle: 'hover:shadow-neon-cyan hover:border-neon-cyan/60',
+  Shooter: 'hover:shadow-neon-pink hover:border-neon-pink/60',
+};
+
+const playButtonColor: Record<string, string> = {
+  Arcade: 'bg-neon-orange shadow-neon-orange',
+  Puzzle: 'bg-neon-cyan shadow-neon-cyan',
+  Shooter: 'bg-neon-pink shadow-neon-pink',
 };
 
 export default function GameCard({ game }: GameCardProps) {
   const slug = encodeURIComponent(game.title.toLowerCase());
-  const colorClass = categoryColors[game.category] || 'text-neon-cyan border-neon-cyan';
-  const glowClass = categoryGlow[game.category] || 'hover:shadow-neon-cyan';
+  const colorClass = categoryColors[game.category] || 'text-neon-orange border-neon-orange';
+  const glowClass = categoryGlowHover[game.category] || 'hover:shadow-neon-orange hover:border-neon-orange/60';
+  const playBtnClass = playButtonColor[game.category] || 'bg-neon-orange shadow-neon-orange';
   const thumbSrc = `/assets/generated/${game.thumbnail}`;
 
   return (
     <Link
       to="/game/$title"
       params={{ title: slug }}
-      className={`group block bg-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-opacity-80 hover:scale-[1.02] hover:-translate-y-1 ${glowClass}`}
+      className={`group block bg-card border border-border rounded-lg overflow-hidden card-hover-glow ${glowClass}`}
     >
       <div className="relative aspect-video overflow-hidden bg-muted">
         <img
@@ -42,12 +45,16 @@ export default function GameCard({ game }: GameCardProps) {
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.style.display = 'none';
-            target.parentElement!.classList.add('flex', 'items-center', 'justify-center');
+            const parent = target.parentElement;
+            if (parent) {
+              parent.classList.add('flex', 'items-center', 'justify-center');
+              parent.style.background = 'oklch(0.12 0.02 265)';
+            }
           }}
         />
         <div className="absolute inset-0 bg-background/0 group-hover:bg-background/40 transition-all duration-300 flex items-center justify-center">
-          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
-            <div className="bg-neon-green text-background rounded-full p-3 shadow-neon-green">
+          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
+            <div className={`text-background rounded-full p-3 ${playBtnClass}`}>
               <Play className="w-6 h-6 fill-current" />
             </div>
           </div>
@@ -56,15 +63,15 @@ export default function GameCard({ game }: GameCardProps) {
 
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-orbitron text-sm font-bold text-foreground group-hover:neon-text-green transition-all duration-300 leading-tight">
+          <h3 className="font-chakra text-sm font-bold text-foreground group-hover:neon-text-orange transition-all duration-300 leading-tight">
             {game.title}
           </h3>
-          <span className={`text-xs font-rajdhani font-semibold border rounded px-2 py-0.5 shrink-0 uppercase tracking-wider ${colorClass}`}>
+          <span className={`text-xs font-exo font-semibold border rounded px-2 py-0.5 shrink-0 uppercase tracking-wider ${colorClass}`}>
             {game.category}
           </span>
         </div>
 
-        <div className="flex items-center gap-1 text-muted-foreground text-xs font-rajdhani">
+        <div className="flex items-center gap-1 text-muted-foreground text-xs font-exo">
           <Gamepad className="w-3 h-3" />
           <span>{Number(game.playCount).toLocaleString()} plays</span>
         </div>

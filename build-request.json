@@ -1,42 +1,53 @@
 {
   "kind": "build_request",
-  "title": "Replace 67 Clicker character with uploaded Tung Tung Tung image",
+  "title": "Improve Retro Bowl game to more closely match the original game",
+  "projectName": "Random Arcade",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-35",
-      "text": "Save the uploaded image (IMG_0282.jpeg) as a static asset at frontend/public/assets/generated/tung-character.dim_300x300.png and use it as the central clickable character in the TungTungGame component (frontend/src/components/games/TungTungGame.tsx). Replace any previously programmatically drawn drum/stick figure with this image rendered on the canvas. The image should pulse/scale slightly when idle and shake/flash on click, consistent with the existing clicker game hit effect mechanics.",
+      "id": "REQ-59",
+      "text": "Rewrite the RetroBowlGame component in frontend/src/components/games/RetroBowlGame.tsx to more faithfully replicate the look, feel, and mechanics of the original Retro Bowl mobile game. The field must use a top-down perspective with a bright green pitch, white yard lines, hash marks, and clearly marked end zones. Player sprites must be bold and blocky (retro pixel/chunky style) with distinct team colors for each side. The HUD bar at the top must display score (home vs. away), quarter, time remaining, down & distance, and current yard line. On offense, the player taps/clicks to select a receiver running an animated route (routes shown as dotted lines before the snap), then taps/clicks again to throw with a realistic leading-pass arc. If no throw is made in time the QB scrambles automatically. On run plays the ball carrier runs forward and the player steers left/right by clicking/tapping. AI defenders actively pursue the ball carrier and attempt tackles and interceptions. Full football rules must be enforced: 4 downs to gain 10 yards for a first down; touchdown (6 pts) + extra point attempt (1 pt); field goal option on 4th down (3 pts); safety (2 pts); punt option on 4th down; turnover on downs. The CPU team controls its own offense with AI QB decision-making (pass or run). A play-calling screen appears before each offensive play with Pass (2–3 visible route options) and Run (direction options) choices. Tackle/collision animations play when the ball carrier is brought down. A halftime screen appears between Q2 and Q3. A final score screen with win/loss result and a 'Play Again' button appears at game end. Use Chakra Petch or Exo 2 typography for all HUD and UI text, consistent with the site's neon theme.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Make this into the tung tung tung clicker"
+          "Maked it more like the game"
         ]
       },
       "acceptanceCriteria": [
-        "The uploaded wooden stick character image is displayed as the central clickable target in TungTungGame",
-        "Clicking the character still triggers the TUNG! hit effect with flash/shake animation and score increment",
-        "The idle pulsing animation is applied to the character image",
-        "The combo multiplier and best score mechanics remain intact",
-        "The image is loaded from frontend/public/assets/generated/tung-character.dim_300x300.png"
+        "The field is rendered top-down with a bright green surface, white yard lines, hash marks, and labeled end zones.",
+        "Player sprites are bold/blocky retro-style with clearly different colors for each team.",
+        "The HUD bar shows score, quarter, time remaining, down & distance, and yard line at all times.",
+        "Before the snap, receiver routes are shown as dotted/dashed lines on the field.",
+        "Tapping/clicking a route selects a receiver; a second tap/click throws the ball with a leading-pass arc.",
+        "If the player does not throw in time, the QB automatically scrambles.",
+        "On run plays the player steers the ball carrier left/right via clicks/taps.",
+        "AI defenders chase the ball carrier and attempt tackles and interceptions.",
+        "First downs, touchdowns, extra points, field goals, safeties, punts, and turnovers on downs are all correctly implemented.",
+        "The CPU offense uses AI-controlled QB decisions on its possessions.",
+        "A play-calling screen with Pass and Run options appears before each player offensive play.",
+        "Tackle animations play when the ball carrier is brought down.",
+        "A halftime screen is displayed between Q2 and Q3.",
+        "A final score screen with win/loss result and 'Play Again' button appears at game end.",
+        "All HUD and UI text uses Chakra Petch or Exo 2 font."
       ]
     }
   ],
   "constraints": [
-    "Do not alter the TungTungGame gameplay mechanics (combo multiplier, score, best score, TUNG! effect)",
-    "Do not modify any files under frontend/src/hooks/ or frontend/src/components/ui"
+    "Do not modify any files under frontend/src/hooks/ or frontend/src/components/ui.",
+    "Do not change the backend schema or Motoko actor.",
+    "Retro Bowl's routing in GamePage.tsx and seed entry in seedGames.ts must remain unchanged."
   ],
   "nonGoals": [
-    "Changing the game title or seed entry",
-    "Modifying GamePage.tsx routing",
-    "Altering backend logic"
+    "Adding new games or modifying any other game component.",
+    "Changing the platform theme, navigation, or footer.",
+    "Multiplayer or real-time networking features.",
+    "Modifying the backend actor."
   ],
   "imageRequirements": {
     "required": [],
-    "edits": [
-      "Crop and resize to a square with transparent-friendly framing, preserving the wooden stick character subject (IMG_0282.jpeg > tung-character.dim_300x300.png)"
-    ]
+    "edits": []
   }
 }
