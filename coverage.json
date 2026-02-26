@@ -1,46 +1,24 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T21:58:49.559Z",
+  "generatedAt": "2026-02-26T05:59:58.018Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-32",
-        "summary": "Build an in-browser '67 Clicker' game using React and canvas, themed around the 'six seven' meme. The player clicks (or taps) a large central character/image representing the 'six seven' meme to score points. Each click produces a '67!' hit effect with a visual flash/shake animation and a score increment. Include a combo multiplier that increases when the player clicks rapidly (within a short time window) and resets after a pause. Display the current score prominently and a best score (persisted in localStorage). Show a pulsing idle animation on the character when not being clicked. Style the game with the dark neon arcade theme consistent with the rest of the platform, using neon glow effects and bold Orbitron typography.",
+        "id": "REQ-35",
+        "summary": "Save the uploaded image (IMG_0282.jpeg) as a static asset at frontend/public/assets/generated/tung-character.dim_300x300.png and use it as the central clickable character in the TungTungGame component (frontend/src/components/games/TungTungGame.tsx). Replace any previously programmatically drawn drum/stick figure with this image rendered on the canvas. The image should pulse/scale slightly when idle and shake/flash on click, consistent with the existing clicker game hit effect mechanics.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/games/SixSevenGame.tsx"
+          "frontend/src/components/games/TungTungGame.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/games/SixSevenGame.tsx"
-        ]
-      },
-      {
-        "id": "REQ-33",
-        "summary": "Register the 67 Clicker game in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to its game page by its seeded title slug (e.g., '67-clicker') renders the SixSevenGame component and increments the play count on mount.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/GamePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/GamePage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-34",
-        "summary": "Add the 67 Clicker game to the seed games list in frontend/src/lib/seedGames.ts with title '67 Clicker', a short description referencing the six seven meme, category 'Clicker', and a thumbnail filename (e.g., '67-clicker.png'), so it appears in the game library on the homepage.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/lib/seedGames.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/lib/seedGames.ts"
+          "frontend/src/components/games/TungTungGame.tsx"
         ]
       }
     ]
@@ -50,10 +28,8 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/67-clicker.dim_256x256.png",
-    "frontend/src/components/games/SixSevenGame.tsx",
-    "frontend/src/lib/seedGames.ts",
-    "frontend/src/pages/GamePage.tsx",
+    "frontend/public/assets/generated/tung-character.dim_300x300.png",
+    "frontend/src/components/games/TungTungGame.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

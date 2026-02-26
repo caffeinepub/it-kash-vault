@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-build-an-in-browser-67-clicker-game-using-react-and-canvas-themed-around-the-six-seven-meme-the-player-clicks-or-taps-a-large-central-character-image-representing-the-six-seven-meme-to-score-points-each-click-produces-a-67-hit-effect-with-a-visual-flash-shake-animation-and-a-score-increment-include-a-combo-multiplier-that-increases-when-the-player-clicks-rapidly-within-a-short-time-window-and-resets-after-a-pause-display-the-current-score-prominently-and-a-best-score-persisted-in-localstorage-show-a-pulsing-idle-animation-on-the-character-when-not-being-clicked-style-the-game-with-the-dark-neon-arcade-theme-consistent-with-the-rest-of-the-platform-using-neon-glow-effects-and-bold-orbitron-typography",
-      "featureTitle": "Build an in-browser '67 Clicker' game using React and canvas, themed around the 'six seven' meme. The player clicks (or taps) a large central character/image representing the 'six seven' meme to score points. Each click produces a '67!' hit effect with a visual flash/shake animation and a score increment. Include a combo multiplier that increases when the player clicks rapidly (within a short time window) and resets after a pause. Display the current score prominently and a best score (persisted in localStorage). Show a pulsing idle animation on the character when not being clicked. Style the game with the dark neon arcade theme consistent with the rest of the platform, using neon glow effects and bold Orbitron typography.",
+      "featureId": "feature-save-the-uploaded-image-img-0282-jpeg-as-a-static-asset-at-frontend-public-assets-generated-tung-character-dim-300x300-png-and-use-it-as-the-central-clickable-character-in-the-tungtunggame-component-frontend-src-components-games-tungtunggame-tsx-replace-any-previously-programmatically-drawn-drum-stick-figure-with-this-image-rendered-on-the-canvas-the-image-should-pulse-scale-slightly-when-idle-and-shake-flash-on-click-consistent-with-the-existing-clicker-game-hit-effect-mechanics",
+      "featureTitle": "Save the uploaded image (IMG_0282.jpeg) as a static asset at frontend/public/assets/generated/tung-character.dim_300x300.png and use it as the central clickable character in the TungTungGame component (frontend/src/components/games/TungTungGame.tsx). Replace any previously programmatically drawn drum/stick figure with this image rendered on the canvas. The image should pulse/scale slightly when idle and shake/flash on click, consistent with the existing clicker game hit effect mechanics.",
       "files": [
-        "frontend/src/components/games/SixSevenGame.tsx"
+        "frontend/src/components/games/TungTungGame.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -16,45 +16,7 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-32"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-register-the-67-clicker-game-in-the-game-routing-map-in-frontend-src-pages-gamepage-tsx-so-that-navigating-to-its-game-page-by-its-seeded-title-slug-e-g-67-clicker-renders-the-sixsevengame-component-and-increments-the-play-count-on-mount",
-      "featureTitle": "Register the 67 Clicker game in the game routing map in frontend/src/pages/GamePage.tsx so that navigating to its game page by its seeded title slug (e.g., '67-clicker') renders the SixSevenGame component and increments the play count on mount.",
-      "files": [
-        "frontend/src/pages/GamePage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-33"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-the-67-clicker-game-to-the-seed-games-list-in-frontend-src-lib-seedgames-ts-with-title-67-clicker-a-short-description-referencing-the-six-seven-meme-category-clicker-and-a-thumbnail-filename-e-g-67-clicker-png-so-it-appears-in-the-game-library-on-the-homepage",
-      "featureTitle": "Add the 67 Clicker game to the seed games list in frontend/src/lib/seedGames.ts with title '67 Clicker', a short description referencing the six seven meme, category 'Clicker', and a thumbnail filename (e.g., '67-clicker.png'), so it appears in the game library on the homepage.",
-      "files": [
-        "frontend/src/lib/seedGames.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-34"
+        "REQ-35"
       ],
       "confidence": "high"
     }

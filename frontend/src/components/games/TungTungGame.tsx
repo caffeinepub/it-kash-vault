@@ -23,6 +23,8 @@ export default function TungTungGame() {
   const nextIdRef = useRef(0);
   const animFrameRef = useRef<number>(0);
   const shakeRef = useRef(0);
+  const characterImgRef = useRef<HTMLImageElement | null>(null);
+  const imgLoadedRef = useRef(false);
 
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
@@ -33,137 +35,76 @@ export default function TungTungGame() {
   const TUNG_TEXTS = ['TUNG!', 'TUNG TUNG!', 'SAHUR!', 'TUNG TUNG TUNG!', 'BOOM!', 'TUNG!'];
   const NEON_COLORS = ['#00ffcc', '#ff2d78', '#ffe600', '#00cfff', '#b400ff'];
 
-  const drawDrum = useCallback(
+  // Preload character image
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/assets/generated/tung-character.dim_300x300.png';
+    img.onload = () => {
+      characterImgRef.current = img;
+      imgLoadedRef.current = true;
+    };
+  }, []);
+
+  const drawCharacter = useCallback(
     (
       ctx: CanvasRenderingContext2D,
       cx: number,
       cy: number,
-      scale: number,
       clickAnim: number,
       pulse: number
     ) => {
       ctx.save();
       ctx.translate(cx, cy);
 
-      const s = scale * (1 + clickAnim * 0.12 + Math.sin(pulse) * 0.03);
+      const s = 1 + clickAnim * 0.12 + Math.sin(pulse) * 0.03;
       ctx.scale(s, s);
 
-      // Glow effect
-      const glowIntensity = 10 + clickAnim * 30 + Math.sin(pulse) * 5;
+      // Tilt/rotate on click for impact feel
+      const tilt = clickAnim * 0.15 * (Math.random() > 0.5 ? 1 : -1);
+      if (clickAnim > 0.05) ctx.rotate(tilt);
+
+      const imgSize = 220;
+      const halfSize = imgSize / 2;
+
+      // Glow effect behind character
+      const glowIntensity = 15 + clickAnim * 40 + Math.sin(pulse) * 6;
       ctx.shadowBlur = glowIntensity;
-      ctx.shadowColor = clickAnim > 0.1 ? '#ff2d78' : '#00ffcc';
+      ctx.shadowColor = clickAnim > 0.1 ? '#ff2d78' : '#ffe600';
 
-      // Drum body (cylinder top ellipse)
-      const drumW = 110;
-      const drumH = 60;
-      const drumBodyH = 80;
-
-      // Drum side
-      ctx.beginPath();
-      ctx.ellipse(0, drumBodyH / 2, drumW / 2, drumH / 4, 0, 0, Math.PI * 2);
-      const sideGrad = ctx.createLinearGradient(-drumW / 2, 0, drumW / 2, drumBodyH);
-      sideGrad.addColorStop(0, '#1a0a2e');
-      sideGrad.addColorStop(0.5, '#2d1060');
-      sideGrad.addColorStop(1, '#0d0520');
-      ctx.fillStyle = sideGrad;
-
-      ctx.beginPath();
-      ctx.moveTo(-drumW / 2, 0);
-      ctx.lineTo(-drumW / 2, drumBodyH);
-      ctx.ellipse(0, drumBodyH, drumW / 2, drumH / 4, 0, Math.PI, 0);
-      ctx.lineTo(drumW / 2, 0);
-      ctx.ellipse(0, 0, drumW / 2, drumH / 4, 0, 0, Math.PI, true);
-      ctx.closePath();
-      ctx.fillStyle = sideGrad;
-      ctx.fill();
-      ctx.strokeStyle = '#b400ff';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Drum decorative bands
-      const bandColors = ['#ff2d78', '#00ffcc', '#ffe600'];
-      for (let i = 0; i < 3; i++) {
-        const bandY = 15 + i * 22;
+      if (imgLoadedRef.current && characterImgRef.current) {
+        // Draw the character image centered
+        ctx.drawImage(characterImgRef.current, -halfSize, -halfSize, imgSize, imgSize);
+      } else {
+        // Fallback: draw a placeholder circle while image loads
         ctx.beginPath();
-        ctx.ellipse(0, bandY, drumW / 2, drumH / 4, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = bandColors[i % bandColors.length];
+        ctx.arc(0, 0, halfSize, 0, Math.PI * 2);
+        ctx.fillStyle = '#2d1060';
+        ctx.fill();
+        ctx.strokeStyle = '#ffe600';
         ctx.lineWidth = 3;
-        ctx.shadowColor = bandColors[i % bandColors.length];
-        ctx.shadowBlur = 8;
         ctx.stroke();
+        ctx.font = `bold 20px 'Orbitron', monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffe600';
+        ctx.fillText('TUNG', 0, 8);
       }
 
-      // Drum top face
-      ctx.beginPath();
-      ctx.ellipse(0, 0, drumW / 2, drumH / 4, 0, 0, Math.PI * 2);
-      const topGrad = ctx.createRadialGradient(0, 0, 5, 0, 0, drumW / 2);
-      topGrad.addColorStop(0, '#4a1a8a');
-      topGrad.addColorStop(0.6, '#2d0d5e');
-      topGrad.addColorStop(1, '#1a0a2e');
-      ctx.fillStyle = topGrad;
-      ctx.shadowBlur = glowIntensity;
-      ctx.shadowColor = clickAnim > 0.1 ? '#ff2d78' : '#00ffcc';
-      ctx.fill();
-      ctx.strokeStyle = clickAnim > 0.1 ? '#ff2d78' : '#00ffcc';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // Drum stick (right side, angled)
-      const stickAngle = clickAnim > 0.1 ? 0.6 : 0.3;
-      const stickX = 30;
-      const stickY = -20;
-      ctx.save();
-      ctx.translate(stickX, stickY);
-      ctx.rotate(-stickAngle);
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = '#ffe600';
-      // Stick handle
-      ctx.beginPath();
-      ctx.roundRect(-5, 0, 10, 80, 5);
-      const stickGrad = ctx.createLinearGradient(0, 0, 0, 80);
-      stickGrad.addColorStop(0, '#ffe600');
-      stickGrad.addColorStop(1, '#a07800');
-      ctx.fillStyle = stickGrad;
-      ctx.fill();
-      ctx.strokeStyle = '#ffe600';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      // Stick tip
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffe600';
-      ctx.fill();
-      ctx.restore();
-
-      // Second stick (left side)
-      const stickAngle2 = clickAnim > 0.1 ? -0.5 : -0.25;
-      ctx.save();
-      ctx.translate(-30, stickY);
-      ctx.rotate(stickAngle2);
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = '#00ffcc';
-      ctx.beginPath();
-      ctx.roundRect(-5, 0, 10, 80, 5);
-      const stickGrad2 = ctx.createLinearGradient(0, 0, 0, 80);
-      stickGrad2.addColorStop(0, '#00ffcc');
-      stickGrad2.addColorStop(1, '#006644');
-      ctx.fillStyle = stickGrad2;
-      ctx.fill();
-      ctx.strokeStyle = '#00ffcc';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.fillStyle = '#00ffcc';
-      ctx.fill();
-      ctx.restore();
+      // Click flash overlay
+      if (clickAnim > 0.05) {
+        ctx.globalAlpha = clickAnim * 0.35;
+        ctx.beginPath();
+        ctx.arc(0, 0, halfSize + 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#ff2d78';
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
 
       // Click ripple effect
       if (clickAnim > 0.05) {
-        const rippleR = (1 - clickAnim) * 120;
+        const rippleR = (1 - clickAnim) * 160;
         ctx.beginPath();
-        ctx.ellipse(0, 0, rippleR, rippleR / 3, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(255, 45, 120, ${clickAnim * 0.8})`;
+        ctx.arc(0, 0, rippleR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255, 45, 120, ${clickAnim * 0.7})`;
         ctx.lineWidth = 3;
         ctx.shadowBlur = 20;
         ctx.shadowColor = '#ff2d78';
@@ -194,13 +135,13 @@ export default function TungTungGame() {
     // Background
     ctx.clearRect(-10, -10, W + 20, H + 20);
     const bgGrad = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.8);
-    bgGrad.addColorStop(0, '#0d0520');
+    bgGrad.addColorStop(0, '#1a0d00');
     bgGrad.addColorStop(1, '#050010');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(-10, -10, W + 20, H + 20);
 
     // Grid lines
-    ctx.strokeStyle = 'rgba(180, 0, 255, 0.07)';
+    ctx.strokeStyle = 'rgba(255, 180, 0, 0.06)';
     ctx.lineWidth = 1;
     for (let x = 0; x < W; x += 40) {
       ctx.beginPath();
@@ -217,9 +158,9 @@ export default function TungTungGame() {
 
     // Combo ring
     if (comboRef.current > 1) {
-      const ringR = 100 + comboRef.current * 8;
+      const ringR = 120 + comboRef.current * 8;
       ctx.beginPath();
-      ctx.arc(W / 2, H / 2 + 20, ringR, 0, Math.PI * 2);
+      ctx.arc(W / 2, H / 2 + 10, ringR, 0, Math.PI * 2);
       ctx.strokeStyle = `rgba(255, 230, 0, ${Math.min(comboRef.current * 0.08, 0.5)})`;
       ctx.lineWidth = comboRef.current * 2;
       ctx.shadowBlur = 20;
@@ -228,8 +169,8 @@ export default function TungTungGame() {
       ctx.shadowBlur = 0;
     }
 
-    // Draw drum
-    drawDrum(ctx, W / 2, H / 2 + 20, 1, clickAnimRef.current, pulseRef.current);
+    // Draw character
+    drawCharacter(ctx, W / 2, H / 2 + 10, clickAnimRef.current, pulseRef.current);
 
     // Floating texts
     floatingTextsRef.current.forEach((ft) => {
@@ -257,7 +198,7 @@ export default function TungTungGame() {
     }
 
     ctx.restore();
-  }, [drawDrum]);
+  }, [drawCharacter]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -347,7 +288,7 @@ export default function TungTungGame() {
 
       // Get click position for floating text
       let clickX = canvas.width / 2;
-      let clickY = canvas.height / 2 - 60;
+      let clickY = canvas.height / 2 - 80;
       if ('touches' in e && e.touches.length > 0) {
         const rect = canvas.getBoundingClientRect();
         clickX = e.touches[0].clientX - rect.left;
@@ -409,7 +350,7 @@ export default function TungTungGame() {
 
       {/* Canvas */}
       <div
-        className="relative w-full max-w-lg rounded-2xl overflow-hidden border-2 border-neon-purple/40"
+        className="relative w-full max-w-lg rounded-2xl overflow-hidden border-2 border-yellow-500/40"
         style={{ height: '420px', cursor: 'pointer' }}
       >
         <canvas
@@ -424,7 +365,7 @@ export default function TungTungGame() {
       {/* Instructions */}
       <div className="text-center max-w-md">
         <p className="font-rajdhani text-muted-foreground text-sm">
-          <span className="text-neon-cyan font-semibold">Click / Tap</span> the drum to score!
+          <span className="text-neon-cyan font-semibold">Click / Tap</span> Tung Tung Tung to score!
           Click rapidly for a <span className="text-yellow-400 font-semibold">COMBO multiplier</span>.
           Combo resets after 1 second of no clicking.
         </p>

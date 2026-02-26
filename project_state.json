@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 23,
+  "projectStateVersion": 25,
   "summary": "A web-based gaming platform similar to Geometry Dash (GD) where users can play lots of games.",
   "architectural_notes": [
     "Web-based gaming platform inspired by Geometry Dash; should support multiple embedded/playable browser games"
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Neon-styled '67' number illustration with a meme-inspired bold comedic face, dark background with electric yellow and hot-pink neon glow accents (67-clicker.dim_256x256.png)",
+  "imageRequirements": "## Edit Images\n- Crop and resize to a square with transparent-friendly framing, preserving the wooden stick character subject (IMG_0282.jpeg > tung-character.dim_300x300.png)",
   "existing_features": [
     {
       "id": "feature-build-an-in-browser-geometry-dash-inspired-platformer-rhythm-game-using-react-three-fiber-three-js-the-game-must-feature-a-player-cube-that-auto-scrolls-to-the-right-procedurally-generated-spike-and-platform-obstacles-jump-mechanic-on-click-spacebar-increasing-speed-over-time-and-a-score-counter-based-on-distance-traveled-display-a-game-over-screen-on-collision-with-a-restart-option",
@@ -270,6 +270,14 @@
       "title": "Add the 67 Clicker game to the seed games list in frontend/src/lib/seedGames.ts with title '67 Clicker', a short description referencing the six seven meme, category 'Clicker', and a thumbnail filename (e.g., '67-clicker.png'), so it appears in the game library on the homepage.",
       "reqIds": [
         "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-save-the-uploaded-image-img-0282-jpeg-as-a-static-asset-at-frontend-public-assets-generated-tung-character-dim-300x300-png-and-use-it-as-the-central-clickable-character-in-the-tungtunggame-component-frontend-src-components-games-tungtunggame-tsx-replace-any-previously-programmatically-drawn-drum-stick-figure-with-this-image-rendered-on-the-canvas-the-image-should-pulse-scale-slightly-when-idle-and-shake-flash-on-click-consistent-with-the-existing-clicker-game-hit-effect-mechanics",
+      "title": "Save the uploaded image (IMG_0282.jpeg) as a static asset at frontend/public/assets/generated/tung-character.dim_300x300.png and use it as the central clickable character in the TungTungGame component (frontend/src/components/games/TungTungGame.tsx). Replace any previously programmatically drawn drum/stick figure with this image rendered on the canvas. The image should pulse/scale slightly when idle and shake/flash on click, consistent with the existing clicker game hit effect mechanics.",
+      "reqIds": [
+        "REQ-35"
       ],
       "version": 1
     }
