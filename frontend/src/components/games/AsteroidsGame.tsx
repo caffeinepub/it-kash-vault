@@ -1,369 +1,398 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useSoundEffect } from '@/hooks/useSoundEffect';
 
-const CW = 700;
-const CH = 500;
+const W = 800;
+const H = 600;
+const SHIP_SIZE = 18;
+const BULLET_SPEED = 10;
+const BULLET_LIFE = 60;
+const ASTEROID_SPEEDS = { large: 1.2, medium: 1.8, small: 2.8 };
+const ASTEROID_SIZES = { large: 45, medium: 25, small: 13 };
+
+type AsteroidSize = 'large' | 'medium' | 'small';
 
 interface Vec2 { x: number; y: number; }
-interface Asteroid { x: number; y: number; vx: number; vy: number; r: number; size: 'large' | 'medium' | 'small'; angle: number; spin: number; }
-interface Bullet { x: number; y: number; vx: number; vy: number; life: number; }
-interface Ship { x: number; y: number; vx: number; vy: number; angle: number; thrusting: boolean; }
+interface Ship { pos: Vec2; vel: Vec2; angle: number; alive: boolean; }
+interface Bullet { pos: Vec2; vel: Vec2; life: number; }
+interface Asteroid { id: number; pos: Vec2; vel: Vec2; size: AsteroidSize; angle: number; spin: number; }
 
-interface AstState {
-  running: boolean;
-  over: boolean;
+interface GameState {
   ship: Ship;
-  asteroids: Asteroid[];
   bullets: Bullet[];
+  asteroids: Asteroid[];
   score: number;
-  keys: Set<string>;
-  shootCooldown: number;
-  invincible: number;
+  running: boolean;
+  gameOver: boolean;
   frame: number;
 }
 
-function makeShip(): Ship {
-  return { x: CW / 2, y: CH / 2, vx: 0, vy: 0, angle: -Math.PI / 2, thrusting: false };
-}
+let asteroidIdCounter = 0;
 
-function makeAsteroid(size: 'large' | 'medium' | 'small', x?: number, y?: number): Asteroid {
-  const r = size === 'large' ? 45 : size === 'medium' ? 25 : 12;
-  const speed = size === 'large' ? 1.2 : size === 'medium' ? 2 : 3;
+function randomAsteroid(size: AsteroidSize, pos?: Vec2): Asteroid {
   const angle = Math.random() * Math.PI * 2;
-  const px = x ?? (Math.random() < 0.5 ? Math.random() * 100 : CW - Math.random() * 100);
-  const py = y ?? (Math.random() < 0.5 ? Math.random() * 100 : CH - Math.random() * 100);
+  const speed = ASTEROID_SPEEDS[size];
+  const spawnPos = pos ?? {
+    x: Math.random() < 0.5 ? Math.random() * 100 : W - Math.random() * 100,
+    y: Math.random() * H,
+  };
   return {
-    x: px, y: py,
-    vx: Math.cos(angle) * speed,
-    vy: Math.sin(angle) * speed,
-    r, size,
+    id: asteroidIdCounter++,
+    pos: { ...spawnPos },
+    vel: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
+    size,
     angle: Math.random() * Math.PI * 2,
     spin: (Math.random() - 0.5) * 0.04,
   };
 }
 
-function makeInitialState(): AstState {
+function makeInitialState(): GameState {
   return {
-    running: false,
-    over: false,
-    ship: makeShip(),
-    asteroids: Array.from({ length: 5 }, () => makeAsteroid('large')),
+    ship: { pos: { x: W / 2, y: H / 2 }, vel: { x: 0, y: 0 }, angle: -Math.PI / 2, alive: true },
     bullets: [],
+    asteroids: Array.from({ length: 5 }, () => randomAsteroid('large')),
     score: 0,
-    keys: new Set(),
-    shootCooldown: 0,
-    invincible: 0,
+    running: false,
+    gameOver: false,
     frame: 0,
   };
 }
 
-function wrap(v: number, max: number) { return ((v % max) + max) % max; }
+function wrap(v: Vec2) {
+  if (v.x < 0) v.x += W;
+  if (v.x > W) v.x -= W;
+  if (v.y < 0) v.y += H;
+  if (v.y > H) v.y -= H;
+}
 
-function dist(a: Vec2, b: Vec2) { return Math.hypot(a.x - b.x, a.y - b.y); }
-
-function drawAsteroid(ctx: CanvasRenderingContext2D, a: Asteroid) {
-  ctx.save();
-  ctx.translate(a.x, a.y);
-  ctx.rotate(a.angle);
-  ctx.strokeStyle = '#00e5ff';
-  ctx.shadowColor = '#00e5ff';
-  ctx.shadowBlur = 8;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  const pts = 8;
-  for (let i = 0; i < pts; i++) {
-    const ang = (i / pts) * Math.PI * 2;
-    const jitter = a.r * (0.75 + Math.sin(i * 3.7 + a.angle * 2) * 0.25);
-    const px = Math.cos(ang) * jitter;
-    const py = Math.sin(ang) * jitter;
-    if (i === 0) {
-      ctx.moveTo(px, py);
-    } else {
-      ctx.lineTo(px, py);
-    }
-  }
-  ctx.closePath();
-  ctx.stroke();
-  ctx.restore();
+function dist(a: Vec2, b: Vec2) {
+  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 }
 
 export default function AsteroidsGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef = useRef<AstState>(makeInitialState());
+  const stateRef = useRef<GameState>(makeInitialState());
+  const keysRef = useRef<Set<string>>(new Set());
   const rafRef = useRef<number>(0);
+  const thrustStopRef = useRef<(() => void) | null>(null);
+  const wasThrustingRef = useRef(false);
   const [displayScore, setDisplayScore] = useState(0);
-  const [gameStatus, setGameStatus] = useState<'idle' | 'playing' | 'over'>('idle');
-  const [bestScore, setBestScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const lastShotRef = useRef(0);
+
+  const {
+    playLaser,
+    playLargeExplosion,
+    playSmallExplosion,
+    startThrust,
+    playShipExplosion,
+  } = useSoundEffect();
 
   const startGame = useCallback(() => {
-    const s = makeInitialState();
-    s.running = true;
-    s.invincible = 120;
-    stateRef.current = s;
+    stateRef.current = makeInitialState();
+    stateRef.current.running = true;
     setDisplayScore(0);
-    setGameStatus('playing');
+    setGameOver(false);
+    wasThrustingRef.current = false;
+    if (thrustStopRef.current) { thrustStopRef.current(); thrustStopRef.current = null; }
   }, []);
 
-  const drawFrame = useCallback(() => {
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      keysRef.current.add(e.code);
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'Space'].includes(e.code)) e.preventDefault();
+      if (e.code === 'Space') {
+        if (!stateRef.current.running || stateRef.current.gameOver) {
+          startGame();
+        }
+      }
+    };
+    const up = (e: KeyboardEvent) => keysRef.current.delete(e.code);
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
+  }, [startGame]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const s = stateRef.current;
 
-    if (s.running && !s.over) {
-      s.frame++;
-      const ship = s.ship;
+    const loop = () => {
+      // Single declaration of s used throughout the entire loop function
+      const s = stateRef.current;
 
-      // Rotate
-      if (s.keys.has('ArrowLeft')) ship.angle -= 0.06;
-      if (s.keys.has('ArrowRight')) ship.angle += 0.06;
+      // ── Update ──────────────────────────────────────────────────────────────
+      if (s.running && !s.gameOver) {
+        s.frame++;
+        const keys = keysRef.current;
 
-      // Thrust
-      ship.thrusting = s.keys.has('ArrowUp');
-      if (ship.thrusting) {
-        ship.vx += Math.cos(ship.angle) * 0.25;
-        ship.vy += Math.sin(ship.angle) * 0.25;
-      }
+        // Rotation
+        if (keys.has('ArrowLeft')) s.ship.angle -= 0.07;
+        if (keys.has('ArrowRight')) s.ship.angle += 0.07;
 
-      // Friction
-      ship.vx *= 0.98;
-      ship.vy *= 0.98;
-      const maxSpeed = 8;
-      const spd = Math.hypot(ship.vx, ship.vy);
-      if (spd > maxSpeed) { ship.vx = (ship.vx / spd) * maxSpeed; ship.vy = (ship.vy / spd) * maxSpeed; }
+        // Thrust
+        const thrusting = keys.has('ArrowUp');
+        if (thrusting) {
+          s.ship.vel.x += Math.cos(s.ship.angle) * 0.25;
+          s.ship.vel.y += Math.sin(s.ship.angle) * 0.25;
+          const speed = Math.sqrt(s.ship.vel.x ** 2 + s.ship.vel.y ** 2);
+          if (speed > 8) {
+            s.ship.vel.x = (s.ship.vel.x / speed) * 8;
+            s.ship.vel.y = (s.ship.vel.y / speed) * 8;
+          }
+        }
 
-      ship.x = wrap(ship.x + ship.vx, CW);
-      ship.y = wrap(ship.y + ship.vy, CH);
+        // Thrust sound management
+        if (thrusting && !wasThrustingRef.current) {
+          wasThrustingRef.current = true;
+          thrustStopRef.current = startThrust();
+        } else if (!thrusting && wasThrustingRef.current) {
+          wasThrustingRef.current = false;
+          if (thrustStopRef.current) { thrustStopRef.current(); thrustStopRef.current = null; }
+        }
 
-      // Shoot
-      if (s.keys.has(' ') && s.shootCooldown <= 0) {
-        s.bullets.push({
-          x: ship.x + Math.cos(ship.angle) * 20,
-          y: ship.y + Math.sin(ship.angle) * 20,
-          vx: Math.cos(ship.angle) * 12 + ship.vx,
-          vy: Math.sin(ship.angle) * 12 + ship.vy,
-          life: 55,
+        // Friction
+        s.ship.vel.x *= 0.99;
+        s.ship.vel.y *= 0.99;
+
+        // Move ship
+        s.ship.pos.x += s.ship.vel.x;
+        s.ship.pos.y += s.ship.vel.y;
+        wrap(s.ship.pos);
+
+        // Shoot
+        if (keys.has('Space') && s.frame - lastShotRef.current > 12) {
+          lastShotRef.current = s.frame;
+          s.bullets.push({
+            pos: {
+              x: s.ship.pos.x + Math.cos(s.ship.angle) * SHIP_SIZE,
+              y: s.ship.pos.y + Math.sin(s.ship.angle) * SHIP_SIZE,
+            },
+            vel: {
+              x: s.ship.vel.x + Math.cos(s.ship.angle) * BULLET_SPEED,
+              y: s.ship.vel.y + Math.sin(s.ship.angle) * BULLET_SPEED,
+            },
+            life: BULLET_LIFE,
+          });
+          playLaser();
+        }
+
+        // Move bullets
+        s.bullets = s.bullets
+          .map(b => ({ ...b, pos: { x: b.pos.x + b.vel.x, y: b.pos.y + b.vel.y }, life: b.life - 1 }))
+          .filter(b => b.life > 0);
+        s.bullets.forEach(b => wrap(b.pos));
+
+        // Move asteroids
+        s.asteroids.forEach(a => {
+          a.pos.x += a.vel.x;
+          a.pos.y += a.vel.y;
+          a.angle += a.spin;
+          wrap(a.pos);
         });
-        s.shootCooldown = 12;
-      }
-      if (s.shootCooldown > 0) s.shootCooldown--;
 
-      // Move bullets
-      s.bullets = s.bullets
-        .map((b) => ({ ...b, x: wrap(b.x + b.vx, CW), y: wrap(b.y + b.vy, CH), life: b.life - 1 }))
-        .filter((b) => b.life > 0);
+        // Bullet-asteroid collisions
+        const newAsteroids: Asteroid[] = [];
+        const hitAsteroidIds = new Set<number>();
+        const hitBulletIndices = new Set<number>();
 
-      // Move asteroids
-      s.asteroids = s.asteroids.map((a) => ({
-        ...a,
-        x: wrap(a.x + a.vx, CW),
-        y: wrap(a.y + a.vy, CH),
-        angle: a.angle + a.spin,
-      }));
-
-      // Bullet-asteroid collision
-      const newAsteroids: Asteroid[] = [];
-      const hitBullets = new Set<number>();
-      for (const a of s.asteroids) {
-        let hit = false;
-        for (let bi = 0; bi < s.bullets.length; bi++) {
-          if (hitBullets.has(bi)) continue;
-          if (dist(s.bullets[bi], a) < a.r) {
-            hit = true;
-            hitBullets.add(bi);
-            if (a.size === 'large') {
-              s.score += 20;
-              newAsteroids.push(makeAsteroid('medium', a.x, a.y));
-              newAsteroids.push(makeAsteroid('medium', a.x, a.y));
-            } else if (a.size === 'medium') {
-              s.score += 50;
-              newAsteroids.push(makeAsteroid('small', a.x, a.y));
-              newAsteroids.push(makeAsteroid('small', a.x, a.y));
-            } else {
-              s.score += 100;
+        s.bullets.forEach((b, bi) => {
+          s.asteroids.forEach(a => {
+            if (hitAsteroidIds.has(a.id)) return;
+            const r = ASTEROID_SIZES[a.size];
+            if (dist(b.pos, a.pos) < r) {
+              hitAsteroidIds.add(a.id);
+              hitBulletIndices.add(bi);
+              if (a.size === 'large') {
+                s.score += 20;
+                newAsteroids.push(randomAsteroid('medium', { ...a.pos }));
+                newAsteroids.push(randomAsteroid('medium', { ...a.pos }));
+                playLargeExplosion();
+              } else if (a.size === 'medium') {
+                s.score += 50;
+                newAsteroids.push(randomAsteroid('small', { ...a.pos }));
+                newAsteroids.push(randomAsteroid('small', { ...a.pos }));
+                playSmallExplosion();
+              } else {
+                s.score += 100;
+                playSmallExplosion();
+              }
             }
-            break;
-          }
+          });
+        });
+
+        s.asteroids = s.asteroids.filter(a => !hitAsteroidIds.has(a.id)).concat(newAsteroids);
+        s.bullets = s.bullets.filter((_, i) => !hitBulletIndices.has(i));
+
+        // Spawn new wave
+        if (s.asteroids.length === 0) {
+          for (let i = 0; i < 5; i++) s.asteroids.push(randomAsteroid('large'));
         }
-        if (!hit) newAsteroids.push(a);
-      }
-      s.bullets = s.bullets.filter((_, i) => !hitBullets.has(i));
-      s.asteroids = newAsteroids;
 
-      // Spawn more if cleared
-      if (s.asteroids.length === 0) {
-        for (let i = 0; i < 5; i++) s.asteroids.push(makeAsteroid('large'));
-      }
-
-      // Ship-asteroid collision
-      if (s.invincible > 0) {
-        s.invincible--;
-      } else {
+        // Ship-asteroid collision
         for (const a of s.asteroids) {
-          if (dist(ship, a) < a.r - 4) {
-            s.over = true;
+          const r = ASTEROID_SIZES[a.size];
+          if (dist(s.ship.pos, a.pos) < r + SHIP_SIZE * 0.7) {
+            s.gameOver = true;
             s.running = false;
-            setBestScore((prev) => Math.max(prev, s.score));
-            setGameStatus('over');
+            if (thrustStopRef.current) { thrustStopRef.current(); thrustStopRef.current = null; }
+            wasThrustingRef.current = false;
+            playShipExplosion();
+            setGameOver(true);
             break;
           }
         }
+
+        setDisplayScore(s.score);
       }
 
-      if (s.frame % 4 === 0) setDisplayScore(s.score);
-    }
+      // ── Draw ────────────────────────────────────────────────────────────────
+      ctx.fillStyle = '#0a0a0f';
+      ctx.fillRect(0, 0, W, H);
 
-    // Draw
-    ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(0, 0, CW, CH);
+      // Stars
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 80; i++) {
+        const sx = ((i * 137 + 50) % W);
+        const sy = ((i * 97 + 30) % H);
+        ctx.fillRect(sx, sy, 1, 1);
+      }
 
-    // Stars
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    for (let i = 0; i < 60; i++) {
-      ctx.fillRect((i * 137) % CW, (i * 97) % CH, 1, 1);
-    }
-
-    // Asteroids
-    for (const a of stateRef.current.asteroids) drawAsteroid(ctx, a);
-
-    // Bullets
-    ctx.fillStyle = '#ff6a00';
-    ctx.shadowColor = '#ff6a00';
-    ctx.shadowBlur = 10;
-    for (const b of stateRef.current.bullets) {
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.shadowBlur = 0;
-
-    // Ship
-    const ship = stateRef.current.ship;
-    if (!stateRef.current.over && (stateRef.current.invincible % 6 < 4 || stateRef.current.invincible === 0)) {
-      ctx.save();
-      ctx.translate(ship.x, ship.y);
-      ctx.rotate(ship.angle);
-      ctx.strokeStyle = '#ff6a00';
-      ctx.shadowColor = '#ff6a00';
-      ctx.shadowBlur = 14;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(20, 0);
-      ctx.lineTo(-12, -10);
-      ctx.lineTo(-6, 0);
-      ctx.lineTo(-12, 10);
-      ctx.closePath();
-      ctx.stroke();
-
-      if (ship.thrusting) {
-        ctx.strokeStyle = '#00e5ff';
-        ctx.shadowColor = '#00e5ff';
+      // Asteroids
+      s.asteroids.forEach(a => {
+        const r = ASTEROID_SIZES[a.size];
+        ctx.save();
+        ctx.translate(a.pos.x, a.pos.y);
+        ctx.rotate(a.angle);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#94a3b8';
+        ctx.shadowBlur = 4;
         ctx.beginPath();
-        ctx.moveTo(-6, 0);
-        ctx.lineTo(-18 - Math.random() * 8, 0);
+        const sides = a.size === 'large' ? 9 : a.size === 'medium' ? 7 : 6;
+        for (let i = 0; i < sides; i++) {
+          const ang = (i / sides) * Math.PI * 2;
+          const jitter = r * (0.75 + ((a.id * (i + 1) * 7) % 25) / 100);
+          const px = Math.cos(ang) * jitter;
+          const py = Math.sin(ang) * jitter;
+          if (i === 0) {
+            ctx.moveTo(px, py);
+          } else {
+            ctx.lineTo(px, py);
+          }
+        }
+        ctx.closePath();
         ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.restore();
+      });
+
+      // Bullets
+      s.bullets.forEach(b => {
+        ctx.fillStyle = '#f97316';
+        ctx.shadowColor = '#f97316';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(b.pos.x, b.pos.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      // Ship
+      if (s.ship.alive && !s.gameOver) {
+        ctx.save();
+        ctx.translate(s.ship.pos.x, s.ship.pos.y);
+        ctx.rotate(s.ship.angle);
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#22d3ee';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(SHIP_SIZE, 0);
+        ctx.lineTo(-SHIP_SIZE * 0.7, -SHIP_SIZE * 0.6);
+        ctx.lineTo(-SHIP_SIZE * 0.4, 0);
+        ctx.lineTo(-SHIP_SIZE * 0.7, SHIP_SIZE * 0.6);
+        ctx.closePath();
+        ctx.stroke();
+        // Thrust flame
+        if (keysRef.current.has('ArrowUp')) {
+          ctx.strokeStyle = '#f97316';
+          ctx.shadowColor = '#f97316';
+          ctx.beginPath();
+          ctx.moveTo(-SHIP_SIZE * 0.4, -5);
+          ctx.lineTo(-SHIP_SIZE * 0.9 - Math.random() * 8, 0);
+          ctx.lineTo(-SHIP_SIZE * 0.4, 5);
+          ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+        ctx.restore();
       }
-      ctx.restore();
-    }
 
-    // Score
-    ctx.fillStyle = '#ff6a00';
-    ctx.shadowColor = '#ff6a00';
-    ctx.shadowBlur = 8;
-    ctx.font = 'bold 18px "Chakra Petch", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Score: ${stateRef.current.score}`, 16, 30);
-    ctx.shadowBlur = 0;
+      // HUD
+      ctx.fillStyle = '#f97316';
+      ctx.font = 'bold 20px "Chakra Petch", monospace';
+      ctx.fillText(`SCORE: ${s.score}`, 16, 32);
 
-    if (!stateRef.current.running && !stateRef.current.over) {
-      ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.fillRect(0, 0, CW, CH);
-      ctx.fillStyle = '#ff6a00';
-      ctx.font = 'bold 22px "Chakra Petch", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = '#ff6a00';
-      ctx.shadowBlur = 12;
-      ctx.fillText('Click to Start', CW / 2, CH / 2);
-      ctx.shadowBlur = 0;
-      ctx.textAlign = 'left';
-    }
+      // Overlays
+      if (!s.running && !s.gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#f97316';
+        ctx.font = 'bold 40px "Chakra Petch", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('ASTEROIDS', W / 2, H / 2 - 50);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '16px "Exo 2", sans-serif';
+        ctx.fillText('← → Rotate  |  ↑ Thrust  |  SPACE Shoot', W / 2, H / 2);
+        ctx.fillText('Press SPACE to start', W / 2, H / 2 + 35);
+        ctx.textAlign = 'left';
+      }
 
-    rafRef.current = requestAnimationFrame(drawFrame);
-  }, []);
+      if (s.gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.65)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 44px "Chakra Petch", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', W / 2, H / 2 - 30);
+        ctx.fillStyle = '#f97316';
+        ctx.font = '24px "Chakra Petch", monospace';
+        ctx.fillText(`SCORE: ${s.score}`, W / 2, H / 2 + 20);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '16px "Exo 2", sans-serif';
+        ctx.fillText('Press SPACE to restart', W / 2, H / 2 + 60);
+        ctx.textAlign = 'left';
+      }
 
-  useEffect(() => {
-    rafRef.current = requestAnimationFrame(drawFrame);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [drawFrame]);
-
-  useEffect(() => {
-    const onDown = (e: KeyboardEvent) => {
-      stateRef.current.keys.add(e.key);
-      if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+      rafRef.current = requestAnimationFrame(loop);
     };
-    const onUp = (e: KeyboardEvent) => stateRef.current.keys.delete(e.key);
-    window.addEventListener('keydown', onDown);
-    window.addEventListener('keyup', onUp);
+
+    rafRef.current = requestAnimationFrame(loop);
     return () => {
-      window.removeEventListener('keydown', onDown);
-      window.removeEventListener('keyup', onUp);
+      cancelAnimationFrame(rafRef.current);
+      if (thrustStopRef.current) { thrustStopRef.current(); thrustStopRef.current = null; }
     };
-  }, []);
+  }, [playLaser, playLargeExplosion, playSmallExplosion, startThrust, playShipExplosion]);
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-      <div className="text-center">
-        <h2 className="font-chakra text-3xl font-black neon-text-orange mb-1">Asteroids</h2>
-        <p className="font-exo text-muted-foreground text-sm">Destroy all asteroids to survive!</p>
+    <div className="flex flex-col items-center gap-4 p-4">
+      <div className="flex items-center gap-6 mb-2">
+        <span className="font-chakra text-neon-orange text-lg font-bold">ASTEROIDS</span>
+        <span className="font-chakra text-neon-cyan text-lg">Score: {displayScore}</span>
       </div>
-
-      <div className="flex gap-8">
-        <div className="text-center">
-          <div className="font-chakra text-2xl font-black neon-text-orange">{displayScore}</div>
-          <div className="font-exo text-xs text-muted-foreground uppercase tracking-widest">Score</div>
-        </div>
-        <div className="text-center">
-          <div className="font-chakra text-2xl font-black neon-text-cyan">{bestScore}</div>
-          <div className="font-exo text-xs text-muted-foreground uppercase tracking-widest">Best</div>
-        </div>
-      </div>
-
       <canvas
         ref={canvasRef}
-        width={CW}
-        height={CH}
-        onClick={() => { if (!stateRef.current.running && !stateRef.current.over) startGame(); }}
-        className="rounded-xl border border-border cursor-pointer w-full"
-        style={{ maxWidth: CW }}
+        width={W}
+        height={H}
+        className="rounded-lg border border-neon-orange/30 max-w-full"
         tabIndex={0}
+        onFocus={() => { /* focus handler */ }}
       />
-
-      {gameStatus === 'over' && (
-        <div className="text-center bg-card border border-neon-orange/40 rounded-xl p-6 w-full max-w-xs">
-          <div className="font-chakra text-2xl font-black neon-text-pink mb-2">Ship Destroyed!</div>
-          <div className="font-exo text-muted-foreground mb-1">Final Score</div>
-          <div className="font-chakra text-4xl font-black neon-text-orange mb-1">{displayScore}</div>
-          <div className="font-exo text-xs text-muted-foreground mb-4">Best: {bestScore}</div>
-          <button
-            onClick={startGame}
-            className="font-chakra font-bold text-sm uppercase tracking-widest px-8 py-3 rounded-lg bg-neon-orange text-background shadow-neon-orange hover:scale-105 transition-all duration-200"
-          >
-            Play Again
-          </button>
-        </div>
-      )}
-
-      {gameStatus === 'idle' && (
-        <button
-          onClick={startGame}
-          className="font-chakra font-bold text-sm uppercase tracking-widest px-8 py-3 rounded-lg bg-neon-orange text-background shadow-neon-orange hover:scale-105 transition-all duration-200"
-        >
-          Start Game
-        </button>
-      )}
-
-      <div className="font-exo text-xs text-muted-foreground text-center">
-        ← → Rotate • ↑ Thrust • Space Shoot • Large→2 Medium→2 Small→Destroyed
+      <div className="text-muted-foreground text-sm font-exo text-center">
+        <kbd className="bg-muted px-1 rounded">←</kbd><kbd className="bg-muted px-1 rounded">→</kbd> Rotate &nbsp;|&nbsp;
+        <kbd className="bg-muted px-1 rounded">↑</kbd> Thrust &nbsp;|&nbsp;
+        <kbd className="bg-muted px-1 rounded">SPACE</kbd> Shoot / Start
       </div>
     </div>
   );

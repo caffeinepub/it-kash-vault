@@ -1,33 +1,25 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Improve Retro Bowl game to more closely match the original game",
+  "title": "Update Soundpad button visuals to reflect their corresponding sounds",
   "requirements": [
     {
-      "id": "REQ-59",
-      "summary": "Rewrite the RetroBowlGame component to faithfully replicate the original Retro Bowl mobile game with top-down perspective, retro pixel sprites, comprehensive football mechanics, AI opponents, play-calling screens, and proper HUD displays using Chakra Petch or Exo 2 typography",
+      "id": "REQ-70",
+      "summary": "Update each button in the SoundpadPage so that its visual design — including icon, accent color, label style, and/or button shape — reflects the character and feel of its corresponding sound while retaining the existing press/active animation and overall neon arcade theme",
       "acceptanceCriteria": [
-        "The field is rendered top-down with a bright green surface, white yard lines, hash marks, and labeled end zones.",
-        "Player sprites are bold/blocky retro-style with clearly different colors for each team.",
-        "The HUD bar shows score, quarter, time remaining, down & distance, and yard line at all times.",
-        "Before the snap, receiver routes are shown as dotted/dashed lines on the field.",
-        "Tapping/clicking a route selects a receiver; a second tap/click throws the ball with a leading-pass arc.",
-        "If the player does not throw in time, the QB automatically scrambles.",
-        "On run plays the player steers the ball carrier left/right via clicks/taps.",
-        "AI defenders chase the ball carrier and attempt tackles and interceptions.",
-        "First downs, touchdowns, extra points, field goals, safeties, punts, and turnovers on downs are all correctly implemented.",
-        "The CPU offense uses AI-controlled QB decisions on its possessions.",
-        "A play-calling screen with Pass and Run options appears before each player offensive play.",
-        "Tackle animations play when the ball carrier is brought down.",
-        "A halftime screen is displayed between Q2 and Q3.",
-        "A final score screen with win/loss result and 'Play Again' button appears at game end.",
-        "All HUD and UI text uses Chakra Petch or Exo 2 font."
+        "Every button on SoundpadPage has a distinct accent color that matches the mood/feel of its sound (e.g., bright red for Airhorn, sickly green for Fart, deep purple for Evil Laugh).",
+        "Each button displays a small thematic icon or emoji that visually represents its sound.",
+        "No two buttons share the same color + icon combination.",
+        "The existing press/active state animation is preserved on all buttons.",
+        "The page retains the dark neon arcade theme (near-black background, Chakra Petch or Exo 2 typography, neon glow effects).",
+        "The '67' button has a visually distinct style consistent with its neon orange/cyan accent established in the previous feature.",
+        "All 16+ sound buttons remain functional and trigger their corresponding Web Audio API sound on click."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/games/RetroBowlGame.tsx",
+          "path": "frontend/src/pages/SoundpadPage.tsx",
           "operation": "modify",
-          "description": "Completely rewrite the RetroBowlGame component to implement a faithful recreation of the original Retro Bowl mobile game. Render a top-down bright green football field with white yard lines every 5 yards, hash marks, and clearly labeled end zones using canvas rendering. Implement bold, blocky retro pixel-style player sprites with distinct team colors (e.g., red vs blue). Create a persistent HUD bar at the top displaying home score, away score, current quarter, time remaining (MM:SS format), down & distance (e.g., '2nd & 7'), and current yard line. Add a pre-snap phase that displays receiver routes as dotted/dashed lines on the field; implement click-to-select receiver logic followed by click-to-throw with realistic leading-pass arc trajectory. Add QB scramble auto-trigger if no throw occurs within the play clock. For run plays, implement left/right steering via click/tap with smooth ball carrier movement. Implement AI defenders that actively pursue the ball carrier, attempt tackles with collision detection, and intercept poorly thrown passes. Enforce complete football rules: 4 downs to gain 10 yards for first down, touchdown scoring (6 pts) with extra point attempt (1 pt), field goal option on 4th down (3 pts), safety detection (2 pts), punt option on 4th down, and turnover on downs. Implement CPU-controlled offense with AI QB that decides between pass and run plays. Create a play-calling screen modal that appears before each offensive play, showing Pass options (2-3 visible route diagrams) and Run options (left/right/center). Add tackle/collision animations with sprite rotation and slide effects when the ball carrier is brought down. Display a halftime screen between quarters 2 and 3 with current score summary. Show a final score screen at game end with win/loss result text and a 'Play Again' button that resets the game state. Apply Chakra Petch or Exo 2 font family (already loaded in frontend/index.html) to all HUD text, play-calling UI, and game screens using canvas fillText font property or CSS for overlay elements. Maintain existing game state management patterns and ensure the component remains compatible with the GamePage.tsx routing."
+          "description": "Update each sound button to have a distinct visual identity reflecting its sound character. Add unique accent colors for each button (e.g., bright red/orange for Airhorn, sickly green for Fart, muted yellow/brown for Sad Trombone, muted green for Crickets, deep purple for Evil Laugh, neon orange for '67'). Add thematic icons or emojis to each button that visually represent the sound (e.g., megaphone for Airhorn, cloud/puff for Fart, music note for Sad Trombone, bug for Crickets, skull for Evil Laugh). Ensure each button maintains its existing press/active state animation. Preserve the dark neon arcade theme with Chakra Petch or Exo 2 typography and ensure the '67' button retains its distinctive neon orange/cyan styling. Keep all buttons fully functional with their Web Audio API sound triggers."
         }
       ]
     }

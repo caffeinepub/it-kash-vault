@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 37,
-  "summary": "A web-based gaming platform similar to Geometry Dash (GD) where users can play lots of games.",
+  "projectStateVersion": 45,
+  "summary": "A web-based gaming platform (Random Arcade) with 17+ playable browser games, plus a new soundpad project called \"Kash's Soundpad\" featuring funny sound effects.",
   "architectural_notes": [
     "Web-based gaming platform inspired by Geometry Dash; should support multiple embedded/playable browser games"
   ],
@@ -455,6 +455,94 @@
         "REQ-59"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-procedurally-generated-web-audio-api-sound-effects-to-the-retro-bowl-game-retrobowlgame-tsx-include-distinct-sounds-for-throwing-a-pass-completing-a-pass-catch-incomplete-pass-a-successful-run-gain-a-tackle-a-touchdown-a-field-goal-attempt-success-and-miss-a-turnover-sack-and-the-final-whistle-at-game-end-all-sounds-must-be-synthesized-via-the-web-audio-api-no-external-audio-files-required",
+      "title": "Add procedurally generated (Web Audio API) sound effects to the Retro Bowl game (RetroBowlGame.tsx). Include distinct sounds for: throwing a pass, completing a pass (catch), incomplete pass, a successful run gain, a tackle, a touchdown, a field goal attempt (success and miss), a turnover/sack, and the final whistle at game end. All sounds must be synthesized via the Web Audio API — no external audio files required.",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-procedurally-generated-web-audio-api-sound-effects-to-the-dino-runner-game-dinorunnergame-tsx-include-sounds-for-jump-landing-after-a-jump-collision-with-a-cactus-game-over-and-a-periodic-score-milestone-beep-all-sounds-must-be-synthesized-via-the-web-audio-api-no-external-audio-files-required",
+      "title": "Add procedurally generated (Web Audio API) sound effects to the Dino Runner game (DinoRunnerGame.tsx). Include sounds for: jump, landing after a jump, collision with a cactus (game over), and a periodic score milestone beep. All sounds must be synthesized via the Web Audio API — no external audio files required.",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-procedurally-generated-web-audio-api-sound-effects-to-the-asteroids-game-asteroidsgame-tsx-include-sounds-for-firing-a-bullet-a-large-asteroid-exploding-splitting-a-small-asteroid-being-destroyed-ship-thrust-and-game-over-ship-collision-all-sounds-must-be-synthesized-via-the-web-audio-api-no-external-audio-files-required",
+      "title": "Add procedurally generated (Web Audio API) sound effects to the Asteroids game (AsteroidsGame.tsx). Include sounds for: firing a bullet, a large asteroid exploding (splitting), a small asteroid being destroyed, ship thrust, and game over (ship collision). All sounds must be synthesized via the Web Audio API — no external audio files required.",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-procedurally-generated-web-audio-api-sound-effects-to-the-swords-and-sandals-game-swordsandsandalsgame-tsx-include-sounds-for-player-attack-hit-player-block-special-move-activation-enemy-attack-hit-victory-and-defeat-all-sounds-must-be-synthesized-via-the-web-audio-api-no-external-audio-files-required",
+      "title": "Add procedurally generated (Web Audio API) sound effects to the Swords and Sandals game (SwordsAndSandalsGame.tsx). Include sounds for: player attack hit, player block, special move activation, enemy attack hit, victory, and defeat. All sounds must be synthesized via the Web Audio API — no external audio files required.",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-procedurally-generated-web-audio-api-sound-effects-to-the-whack-a-mole-game-whackamolegame-tsx-include-sounds-for-a-mole-popping-up-a-successful-whack-hit-a-miss-mole-retreats-unwhacked-and-game-over-all-sounds-must-be-synthesized-via-the-web-audio-api-no-external-audio-files-required",
+      "title": "Add procedurally generated (Web Audio API) sound effects to the Whack-a-Mole game (WhackAMoleGame.tsx). Include sounds for: a mole popping up, a successful whack (hit), a miss (mole retreats unwhacked), and game over. All sounds must be synthesized via the Web Audio API — no external audio files required.",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-procedurally-generated-web-audio-api-sound-effects-to-the-pong-game-ponggame-tsx-include-sounds-for-paddle-hit-wall-ceiling-bounce-scoring-a-point-and-game-over-match-won-all-sounds-must-be-synthesized-via-the-web-audio-api-no-external-audio-files-required",
+      "title": "Add procedurally generated (Web Audio API) sound effects to the Pong game (PongGame.tsx). Include sounds for: paddle hit, wall/ceiling bounce, scoring a point, and game over (match won). All sounds must be synthesized via the Web Audio API — no external audio files required.",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-standalone-react-page-at-frontend-src-pages-soundpadpage-tsx-named-kash-s-soundpad-the-page-displays-a-grid-of-clickable-sound-buttons-each-representing-a-distinct-funny-sound-effect-include-at-least-16-funny-sound-buttons-with-humorous-labels-e-g-fart-airhorn-bruh-sad-trombone-crickets-wow-oof-glass-break-boing-reverb-scream-dial-up-modem-cartoon-slip-evil-laugh-clapping-price-is-right-fail-rimshot-each-button-when-clicked-synthesizes-and-plays-its-corresponding-sound-using-the-web-audio-api-no-external-audio-files-each-button-should-show-a-visual-press-active-state-animation-when-clicked-the-page-title-kash-s-soundpad-must-be-displayed-prominently-at-the-top-using-the-site-s-chakra-petch-or-exo-2-font-with-a-neon-glow-effect-consistent-with-the-random-arcade-theme-near-black-background-neon-orange-and-cyan-accents",
+      "title": "Create a new standalone React page at frontend/src/pages/SoundpadPage.tsx named 'Kash's Soundpad'. The page displays a grid of clickable sound buttons, each representing a distinct funny sound effect. Include at least 16 funny sound buttons with humorous labels (e.g., 'Fart', 'Airhorn', 'Bruh', 'Sad Trombone', 'Crickets', 'Wow', 'Oof', 'Glass Break', 'Boing', 'Reverb Scream', 'Dial-Up Modem', 'Cartoon Slip', 'Evil Laugh', 'Clapping', 'Price Is Right Fail', 'Rimshot'). Each button, when clicked, synthesizes and plays its corresponding sound using the Web Audio API — no external audio files. Each button should show a visual press/active state animation when clicked. The page title 'KASH'S SOUNDPAD' must be displayed prominently at the top using the site's Chakra Petch or Exo 2 font with a neon glow effect consistent with the Random Arcade theme (near-black background, neon orange and cyan accents).",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-navigation-link-or-button-to-kash-s-soundpad-in-the-existing-navigation-component-frontend-src-components-navigation-tsx-so-users-can-access-the-soundpad-from-anywhere-on-the-site-the-link-label-should-read-soundpad-and-navigate-to-the-soundpad-route-style-it-consistently-with-the-existing-nav-links",
+      "title": "Add a navigation link or button to 'Kash's Soundpad' in the existing Navigation component (frontend/src/components/Navigation.tsx) so users can access the soundpad from anywhere on the site. The link label should read 'Soundpad' and navigate to the /soundpad route. Style it consistently with the existing nav links.",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-register-the-soundpad-route-in-frontend-src-app-tsx-so-that-navigating-to-soundpad-renders-the-soundpadpage-component",
+      "title": "Register the /soundpad route in frontend/src/App.tsx so that navigating to /soundpad renders the SoundpadPage component.",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-67-sound-button-to-the-soundpadpage-frontend-src-pages-soundpadpage-tsx-the-button-must-be-labeled-67-and-when-clicked-synthesize-and-play-a-67-themed-sound-effect-using-the-web-audio-api-via-the-usesoundeffect-hook-frontend-src-hooks-usesoundeffect-ts-the-button-must-display-the-same-visual-press-active-state-animation-as-the-existing-soundpad-buttons-and-be-styled-consistently-with-the-neon-arcade-theme-near-black-background-neon-orange-cyan-accents",
+      "title": "Add a '67' sound button to the SoundpadPage (frontend/src/pages/SoundpadPage.tsx). The button must be labeled '67' and, when clicked, synthesize and play a '67'-themed sound effect using the Web Audio API via the useSoundEffect hook (frontend/src/hooks/useSoundEffect.ts). The button must display the same visual press/active state animation as the existing soundpad buttons and be styled consistently with the neon arcade theme (near-black background, neon orange/cyan accents).",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-each-button-in-the-soundpadpage-frontend-src-pages-soundpadpage-tsx-so-that-its-visual-design-including-icon-accent-color-label-style-and-or-button-shape-reflects-the-character-and-feel-of-its-corresponding-sound-for-example-fart-gets-a-puff-cloud-icon-and-a-sickly-green-tint-airhorn-gets-a-bold-red-orange-color-and-a-megaphone-icon-sad-trombone-gets-a-muted-yellow-brown-tone-and-a-music-note-crickets-gets-a-muted-green-and-a-bug-icon-evil-laugh-gets-a-deep-purple-with-a-skull-laugh-icon-67-gets-a-neon-orange-flash-styling-each-button-must-retain-the-existing-press-active-animation-and-the-overall-neon-arcade-theme-dark-background-chakra-petch-or-exo-2-font-but-differ-from-one-another-visually-so-a-user-can-identify-the-button-s-sound-at-a-glance-without-reading-the-label",
+      "title": "Update each button in the SoundpadPage (frontend/src/pages/SoundpadPage.tsx) so that its visual design — including icon, accent color, label style, and/or button shape — reflects the character and feel of its corresponding sound. For example: 'Fart' gets a puff/cloud icon and a sickly green tint; 'Airhorn' gets a bold red/orange color and a megaphone icon; 'Sad Trombone' gets a muted yellow/brown tone and a music note; 'Crickets' gets a muted green and a bug icon; 'Evil Laugh' gets a deep purple with a skull/laugh icon; '67' gets a neon orange flash styling. Each button must retain the existing press/active animation and the overall neon arcade theme (dark background, Chakra Petch or Exo 2 font), but differ from one another visually so a user can identify the button's sound at a glance without reading the label.",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -539,6 +627,30 @@
     {
       "id": "AR-15",
       "summary": "Revamp the Retro Bowl game to match the original Retro Bowl game's mechanics, visuals, and feel as closely as possible",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Add sound effects to the Retro Bowl game (and/or platform games in general)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Build a soundpad website called \"Kash's Soundpad\" with buttons for funny sound effects, synthesized via Web Audio API or pre-loaded audio",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Add a '67' sound button to Kash's Soundpad",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Update the soundpad buttons to visually reflect their corresponding sounds (e.g., icons, colors, or styling that matches the sound theme)",
       "reqIds": [],
       "status": "pending"
     }

@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import GamePage from './pages/GamePage';
+import SoundpadPage from './pages/SoundpadPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,7 +43,13 @@ const gameRoute = createRoute({
   component: GamePage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, gameRoute]);
+const soundpadRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/soundpad',
+  component: SoundpadPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, gameRoute, soundpadRoute]);
 
 const router = createRouter({ routeTree });
 

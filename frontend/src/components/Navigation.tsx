@@ -24,6 +24,12 @@ export default function Navigation() {
             >
               Game Library
             </Link>
+            <Link
+              to="/soundpad"
+              className="font-exo font-semibold text-muted-foreground hover:text-neon-orange transition-colors duration-200 text-sm uppercase tracking-widest"
+            >
+              Soundpad
+            </Link>
           </div>
         </div>
       </div>

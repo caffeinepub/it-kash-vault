@@ -1,17 +1,16 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useSoundEffect } from '@/hooks/useSoundEffect';
 
-const CANVAS_W = 700;
-const CANVAS_H = 200;
-const GROUND_Y = 160;
+const CANVAS_WIDTH = 800;
+const CANVAS_HEIGHT = 300;
+const GROUND_Y = 240;
 const DINO_X = 80;
-const DINO_W = 40;
-const DINO_H = 50;
+const DINO_W = 44;
+const DINO_H = 52;
 const GRAVITY = 0.6;
 const JUMP_VEL = -13;
 const INITIAL_SPEED = 5;
-const SPEED_INCREMENT = 0.0015;
-const CACTUS_MIN_GAP = 280;
-const CACTUS_MAX_GAP = 520;
+const SPEED_INCREMENT = 0.001;
 
 interface Cactus {
   x: number;
@@ -21,29 +20,29 @@ interface Cactus {
 
 interface GameState {
   running: boolean;
-  over: boolean;
+  gameOver: boolean;
+  score: number;
+  speed: number;
   dinoY: number;
   dinoVY: number;
   onGround: boolean;
   cacti: Cactus[];
-  score: number;
-  speed: number;
-  nextCactusIn: number;
   frame: number;
+  legFrame: number;
 }
 
 function makeInitialState(): GameState {
   return {
     running: false,
-    over: false,
+    gameOver: false,
+    score: 0,
+    speed: INITIAL_SPEED,
     dinoY: GROUND_Y - DINO_H,
     dinoVY: 0,
     onGround: true,
     cacti: [],
-    score: 0,
-    speed: INITIAL_SPEED,
-    nextCactusIn: 80,
     frame: 0,
+    legFrame: 0,
   };
 }
 
@@ -52,233 +51,229 @@ export default function DinoRunnerGame() {
   const stateRef = useRef<GameState>(makeInitialState());
   const rafRef = useRef<number>(0);
   const [displayScore, setDisplayScore] = useState(0);
-  const [gameStatus, setGameStatus] = useState<'idle' | 'playing' | 'over'>('idle');
-  const [bestScore, setBestScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [started, setStarted] = useState(false);
+  const lastMilestoneRef = useRef(0);
+  const wasOnGroundRef = useRef(true);
+
+  const {
+    playDinoJump,
+    playDinoLand,
+    playDinoGameOver,
+    playDinoMilestone,
+  } = useSoundEffect();
 
   const jump = useCallback(() => {
     const s = stateRef.current;
-    if (s.onGround && s.running) {
+    if (s.onGround && s.running && !s.gameOver) {
       s.dinoVY = JUMP_VEL;
       s.onGround = false;
+      wasOnGroundRef.current = false;
+      playDinoJump();
     }
-  }, []);
+  }, [playDinoJump]);
 
   const startGame = useCallback(() => {
     stateRef.current = makeInitialState();
     stateRef.current.running = true;
+    lastMilestoneRef.current = 0;
+    wasOnGroundRef.current = true;
     setDisplayScore(0);
-    setGameStatus('playing');
+    setGameOver(false);
+    setStarted(true);
   }, []);
-
-  const drawFrame = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const s = stateRef.current;
-
-    // Update
-    if (s.running && !s.over) {
-      s.frame++;
-      s.score = Math.floor(s.frame / 6);
-      s.speed = INITIAL_SPEED + s.frame * SPEED_INCREMENT;
-
-      // Dino physics
-      s.dinoVY += GRAVITY;
-      s.dinoY += s.dinoVY;
-      if (s.dinoY >= GROUND_Y - DINO_H) {
-        s.dinoY = GROUND_Y - DINO_H;
-        s.dinoVY = 0;
-        s.onGround = true;
-      }
-
-      // Spawn cacti
-      s.nextCactusIn--;
-      if (s.nextCactusIn <= 0) {
-        const h = 30 + Math.random() * 30;
-        const w = 18 + Math.random() * 14;
-        s.cacti.push({ x: CANVAS_W + 10, w, h });
-        s.nextCactusIn = CACTUS_MIN_GAP + Math.random() * (CACTUS_MAX_GAP - CACTUS_MIN_GAP);
-      }
-
-      // Move cacti
-      s.cacti = s.cacti
-        .map((c) => ({ ...c, x: c.x - s.speed }))
-        .filter((c) => c.x + c.w > -10);
-
-      // Collision
-      const dinoLeft = DINO_X + 4;
-      const dinoRight = DINO_X + DINO_W - 4;
-      const dinoTop = s.dinoY + 4;
-      const dinoBottom = s.dinoY + DINO_H;
-      for (const c of s.cacti) {
-        if (
-          dinoRight > c.x + 3 &&
-          dinoLeft < c.x + c.w - 3 &&
-          dinoBottom > GROUND_Y - c.h + 3 &&
-          dinoTop < GROUND_Y
-        ) {
-          s.over = true;
-          s.running = false;
-          setBestScore((prev) => Math.max(prev, s.score));
-          setGameStatus('over');
-          break;
-        }
-      }
-
-      if (s.frame % 6 === 0) setDisplayScore(s.score);
-    }
-
-    // Draw
-    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-
-    // Background
-    ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-
-    // Stars
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    for (let i = 0; i < 30; i++) {
-      const sx = ((i * 137 + s.frame * 0.3) % CANVAS_W);
-      const sy = (i * 53) % (GROUND_Y - 20);
-      ctx.fillRect(sx, sy, 1, 1);
-    }
-
-    // Ground
-    ctx.strokeStyle = '#00e5ff';
-    ctx.lineWidth = 2;
-    ctx.shadowColor = '#00e5ff';
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.moveTo(0, GROUND_Y);
-    ctx.lineTo(CANVAS_W, GROUND_Y);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Dino body
-    const legOffset = s.onGround ? (s.frame % 12 < 6 ? 4 : -4) : 0;
-    ctx.fillStyle = '#ff6a00';
-    ctx.shadowColor = '#ff6a00';
-    ctx.shadowBlur = 12;
-    // Body
-    ctx.fillRect(DINO_X, s.dinoY, DINO_W, DINO_H - 10);
-    // Head
-    ctx.fillRect(DINO_X + 10, s.dinoY - 14, 22, 18);
-    // Eye
-    ctx.fillStyle = '#0a0a12';
-    ctx.shadowBlur = 0;
-    ctx.fillRect(DINO_X + 24, s.dinoY - 10, 5, 5);
-    // Legs
-    ctx.fillStyle = '#ff6a00';
-    ctx.shadowColor = '#ff6a00';
-    ctx.shadowBlur = 8;
-    ctx.fillRect(DINO_X + 4, s.dinoY + DINO_H - 10 + legOffset, 10, 10);
-    ctx.fillRect(DINO_X + 20, s.dinoY + DINO_H - 10 - legOffset, 10, 10);
-    ctx.shadowBlur = 0;
-
-    // Cacti
-    for (const c of s.cacti) {
-      ctx.fillStyle = '#00e5ff';
-      ctx.shadowColor = '#00e5ff';
-      ctx.shadowBlur = 10;
-      // Main trunk
-      ctx.fillRect(c.x + c.w / 2 - 5, GROUND_Y - c.h, 10, c.h);
-      // Arms
-      ctx.fillRect(c.x, GROUND_Y - c.h * 0.65, c.w, 8);
-      ctx.fillRect(c.x, GROUND_Y - c.h * 0.65 - 14, 8, 14);
-      ctx.fillRect(c.x + c.w - 8, GROUND_Y - c.h * 0.65 - 14, 8, 14);
-      ctx.shadowBlur = 0;
-    }
-
-    // Score
-    ctx.fillStyle = '#ff6a00';
-    ctx.font = 'bold 16px "Chakra Petch", sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText(`Score: ${s.score}`, CANVAS_W - 16, 28);
-    ctx.textAlign = 'left';
-
-    if (!s.over && !s.running && s.frame === 0) {
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-      ctx.fillStyle = '#ff6a00';
-      ctx.font = 'bold 22px "Chakra Petch", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Press SPACE or Click to Start', CANVAS_W / 2, CANVAS_H / 2);
-      ctx.textAlign = 'left';
-    }
-
-    rafRef.current = requestAnimationFrame(drawFrame);
-  }, []);
-
-  useEffect(() => {
-    rafRef.current = requestAnimationFrame(drawFrame);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [drawFrame]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
-        const s = stateRef.current;
-        if (!s.running && !s.over) startGame();
-        else jump();
+        if (!stateRef.current.running || stateRef.current.gameOver) {
+          startGame();
+        } else {
+          jump();
+        }
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [jump, startGame]);
 
-  const handleCanvasClick = () => {
-    const s = stateRef.current;
-    if (!s.running && !s.over) startGame();
-    else jump();
-  };
+  const drawDino = useCallback((ctx: CanvasRenderingContext2D, y: number, legFrame: number, onGround: boolean) => {
+    ctx.fillStyle = '#4ade80';
+    // Body
+    ctx.fillRect(DINO_X, y, DINO_W, DINO_H - 10);
+    // Head
+    ctx.fillRect(DINO_X + 10, y - 16, 28, 20);
+    // Eye
+    ctx.fillStyle = '#000';
+    ctx.fillRect(DINO_X + 30, y - 12, 5, 5);
+    // Legs
+    ctx.fillStyle = '#4ade80';
+    if (onGround) {
+      const leg1 = legFrame < 10 ? 0 : 8;
+      const leg2 = legFrame < 10 ? 8 : 0;
+      ctx.fillRect(DINO_X + 6, y + DINO_H - 10, 10, 10 + leg1);
+      ctx.fillRect(DINO_X + 22, y + DINO_H - 10, 10, 10 + leg2);
+    } else {
+      ctx.fillRect(DINO_X + 6, y + DINO_H - 10, 10, 14);
+      ctx.fillRect(DINO_X + 22, y + DINO_H - 10, 10, 14);
+    }
+  }, []);
+
+  const drawCactus = useCallback((ctx: CanvasRenderingContext2D, c: Cactus) => {
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(c.x, GROUND_Y - c.h, c.w, c.h);
+    ctx.fillRect(c.x - 8, GROUND_Y - c.h + 20, 8, 16);
+    ctx.fillRect(c.x + c.w, GROUND_Y - c.h + 30, 8, 12);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const loop = () => {
+      const s = stateRef.current;
+
+      if (s.running && !s.gameOver) {
+        s.frame++;
+        s.speed += SPEED_INCREMENT;
+        s.score = Math.floor(s.frame / 6);
+
+        // Milestone sound every 100 points
+        const milestone = Math.floor(s.score / 100);
+        if (milestone > lastMilestoneRef.current && s.score > 0) {
+          lastMilestoneRef.current = milestone;
+          playDinoMilestone();
+        }
+
+        // Leg animation
+        if (s.onGround) s.legFrame = (s.legFrame + 1) % 20;
+
+        // Gravity
+        s.dinoVY += GRAVITY;
+        s.dinoY += s.dinoVY;
+        if (s.dinoY >= GROUND_Y - DINO_H) {
+          s.dinoY = GROUND_Y - DINO_H;
+          s.dinoVY = 0;
+          if (!s.onGround) {
+            s.onGround = true;
+            wasOnGroundRef.current = true;
+            playDinoLand();
+          }
+        }
+
+        // Spawn cacti
+        if (s.frame % Math.floor(80 - s.speed * 3) === 0) {
+          const h = 40 + Math.random() * 30;
+          s.cacti.push({ x: CANVAS_WIDTH + 10, w: 20 + Math.random() * 10, h });
+        }
+
+        // Move cacti
+        s.cacti = s.cacti.map(c => ({ ...c, x: c.x - s.speed })).filter(c => c.x + c.w > -10);
+
+        // Collision
+        for (const c of s.cacti) {
+          const dinoLeft = DINO_X + 4;
+          const dinoRight = DINO_X + DINO_W - 4;
+          const dinoTop = s.dinoY + 4;
+          const dinoBottom = GROUND_Y;
+          const cLeft = c.x;
+          const cRight = c.x + c.w;
+          const cTop = GROUND_Y - c.h;
+          if (dinoRight > cLeft && dinoLeft < cRight && dinoBottom > cTop && dinoTop < GROUND_Y) {
+            s.gameOver = true;
+            s.running = false;
+            playDinoGameOver();
+            setGameOver(true);
+          }
+        }
+
+        setDisplayScore(s.score);
+      }
+
+      // Draw
+      ctx.fillStyle = '#0a0a0f';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      // Ground
+      ctx.fillStyle = '#1e3a2f';
+      ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, CANVAS_HEIGHT - GROUND_Y);
+      ctx.fillStyle = '#4ade80';
+      ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, 3);
+
+      // Score
+      ctx.fillStyle = '#f97316';
+      ctx.font = 'bold 18px "Chakra Petch", monospace';
+      ctx.fillText(`SCORE: ${s.score}`, CANVAS_WIDTH - 160, 30);
+
+      // Cacti
+      s.cacti.forEach(c => drawCactus(ctx, c));
+
+      // Dino
+      drawDino(ctx, s.dinoY, s.legFrame, s.onGround);
+
+      // Overlays
+      if (!s.running && !s.gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = '#f97316';
+        ctx.font = 'bold 32px "Chakra Petch", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('DINO RUNNER', CANVAS_WIDTH / 2, 110);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '18px "Exo 2", sans-serif';
+        ctx.fillText('Press SPACE or tap to start', CANVAS_WIDTH / 2, 155);
+        ctx.textAlign = 'left';
+      }
+
+      if (s.gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 36px "Chakra Petch", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', CANVAS_WIDTH / 2, 110);
+        ctx.fillStyle = '#f97316';
+        ctx.font = '22px "Chakra Petch", monospace';
+        ctx.fillText(`SCORE: ${s.score}`, CANVAS_WIDTH / 2, 155);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '16px "Exo 2", sans-serif';
+        ctx.fillText('Press SPACE or tap to restart', CANVAS_WIDTH / 2, 190);
+        ctx.textAlign = 'left';
+      }
+
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [drawDino, drawCactus, playDinoLand, playDinoGameOver, playDinoMilestone]);
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-      <div className="text-center">
-        <h2 className="font-chakra text-3xl font-black neon-text-orange mb-1">Dino Runner</h2>
-        <p className="font-exo text-muted-foreground text-sm">Press Space or click to jump!</p>
+    <div className="flex flex-col items-center gap-4 p-4">
+      <div className="flex items-center gap-6 mb-2">
+        <span className="font-chakra text-neon-orange text-lg font-bold">DINO RUNNER</span>
+        <span className="font-chakra text-neon-cyan text-lg">Score: {displayScore}</span>
       </div>
-
-      <div className="flex gap-8">
-        <div className="text-center">
-          <div className="font-chakra text-2xl font-black neon-text-orange">{displayScore}</div>
-          <div className="font-exo text-xs text-muted-foreground uppercase tracking-widest">Score</div>
-        </div>
-        <div className="text-center">
-          <div className="font-chakra text-2xl font-black neon-text-cyan">{bestScore}</div>
-          <div className="font-exo text-xs text-muted-foreground uppercase tracking-widest">Best</div>
-        </div>
-      </div>
-
       <canvas
         ref={canvasRef}
-        width={CANVAS_W}
-        height={CANVAS_H}
-        onClick={handleCanvasClick}
-        className="rounded-xl border border-border cursor-pointer w-full"
-        style={{ maxWidth: CANVAS_W, imageRendering: 'pixelated' }}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        className="rounded-lg border border-neon-orange/30 cursor-pointer max-w-full"
+        style={{ imageRendering: 'pixelated' }}
+        onClick={() => {
+          if (!stateRef.current.running || stateRef.current.gameOver) {
+            startGame();
+          } else {
+            jump();
+          }
+        }}
         tabIndex={0}
       />
-
-      {gameStatus === 'over' && (
-        <div className="text-center bg-card border border-neon-orange/40 rounded-xl p-6 w-full max-w-xs">
-          <div className="font-chakra text-2xl font-black neon-text-pink mb-2">Game Over!</div>
-          <div className="font-exo text-muted-foreground mb-1">Score</div>
-          <div className="font-chakra text-4xl font-black neon-text-orange mb-1">{displayScore}</div>
-          <div className="font-exo text-xs text-muted-foreground mb-4">Best: {bestScore}</div>
-          <button
-            onClick={startGame}
-            className="font-chakra font-bold text-sm uppercase tracking-widest px-8 py-3 rounded-lg bg-neon-orange text-background shadow-neon-orange hover:scale-105 transition-all duration-200"
-          >
-            Play Again
-          </button>
-        </div>
-      )}
-
-      <div className="font-exo text-xs text-muted-foreground text-center">
-        Space / Click / Tap to jump • Avoid the cacti • Speed increases over time
+      <div className="text-muted-foreground text-sm font-exo">
+        Press <kbd className="bg-muted px-1 rounded">SPACE</kbd> or tap to jump
       </div>
     </div>
   );

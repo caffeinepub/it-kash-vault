@@ -1,208 +1,195 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useSoundEffect } from '@/hooks/useSoundEffect';
 
-const GRID_SIZE = 3;
+const GRID_SIZE = 9;
 const GAME_DURATION = 30;
-const MOLE_VISIBLE_MS = 900;
-const MOLE_INTERVAL_MS = 700;
-
-interface MoleState {
-  visible: boolean;
-  hit: boolean;
-}
+const MOLE_SHOW_TIME = 900;
+const MOLE_INTERVAL = 700;
 
 export default function WhackAMoleGame() {
-  const [gameState, setGameState] = useState<'idle' | 'playing' | 'over'>('idle');
+  const [moles, setMoles] = useState<boolean[]>(Array(GRID_SIZE).fill(false));
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
-  const [moles, setMoles] = useState<MoleState[]>(
-    Array.from({ length: GRID_SIZE * GRID_SIZE }, () => ({ visible: false, hit: false }))
-  );
+  const [gameActive, setGameActive] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [hitFlash, setHitFlash] = useState<number | null>(null);
 
-  const scoreRef = useRef(0);
-  const moleTimersRef = useRef<(ReturnType<typeof setTimeout> | null)[]>(
-    Array(GRID_SIZE * GRID_SIZE).fill(null)
-  );
+  const moleTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
   const gameTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const moleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const gameStateRef = useRef<'idle' | 'playing' | 'over'>('idle');
+  const moleSpawnRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const molesRef = useRef<boolean[]>(Array(GRID_SIZE).fill(false));
 
-  const clearAllTimers = useCallback(() => {
-    if (gameTimerRef.current) clearInterval(gameTimerRef.current);
-    if (moleIntervalRef.current) clearInterval(moleIntervalRef.current);
-    moleTimersRef.current.forEach((t) => { if (t) clearTimeout(t); });
-    moleTimersRef.current = Array(GRID_SIZE * GRID_SIZE).fill(null);
-  }, []);
+  const { playMolePop, playWhack, playMoleRetreat, playGameOver } = useSoundEffect();
 
-  const endGame = useCallback(() => {
-    gameStateRef.current = 'over';
-    clearAllTimers();
-    setMoles(Array.from({ length: GRID_SIZE * GRID_SIZE }, () => ({ visible: false, hit: false })));
-    setGameState('over');
-  }, [clearAllTimers]);
-
-  const popMole = useCallback(() => {
-    if (gameStateRef.current !== 'playing') return;
-    const idx = Math.floor(Math.random() * GRID_SIZE * GRID_SIZE);
-    setMoles((prev) => {
-      if (prev[idx].visible) return prev;
+  const hideMole = useCallback((index: number, whacked: boolean) => {
+    if (!whacked) {
+      playMoleRetreat();
+    }
+    setMoles(prev => {
       const next = [...prev];
-      next[idx] = { visible: true, hit: false };
+      next[index] = false;
+      molesRef.current = next;
       return next;
     });
-    if (moleTimersRef.current[idx]) clearTimeout(moleTimersRef.current[idx]!);
-    moleTimersRef.current[idx] = setTimeout(() => {
-      setMoles((prev) => {
-        const next = [...prev];
-        next[idx] = { visible: false, hit: false };
-        return next;
-      });
-    }, MOLE_VISIBLE_MS);
-  }, []);
+    moleTimersRef.current.delete(index);
+  }, [playMoleRetreat]);
+
+  const showMole = useCallback(() => {
+    const available: number[] = [];
+    for (let i = 0; i < GRID_SIZE; i++) {
+      if (!molesRef.current[i]) available.push(i);
+    }
+    if (available.length === 0) return;
+    const idx = available[Math.floor(Math.random() * available.length)];
+    setMoles(prev => {
+      const next = [...prev];
+      next[idx] = true;
+      molesRef.current = next;
+      return next;
+    });
+    playMolePop();
+    const timer = setTimeout(() => hideMole(idx, false), MOLE_SHOW_TIME);
+    moleTimersRef.current.set(idx, timer);
+  }, [playMolePop, hideMole]);
 
   const startGame = useCallback(() => {
-    clearAllTimers();
-    scoreRef.current = 0;
+    // Clear any existing timers
+    moleTimersRef.current.forEach(t => clearTimeout(t));
+    moleTimersRef.current.clear();
+    if (gameTimerRef.current) clearInterval(gameTimerRef.current);
+    if (moleSpawnRef.current) clearInterval(moleSpawnRef.current);
+
+    const freshMoles = Array(GRID_SIZE).fill(false);
+    molesRef.current = freshMoles;
+    setMoles(freshMoles);
     setScore(0);
     setTimeLeft(GAME_DURATION);
-    setMoles(Array.from({ length: GRID_SIZE * GRID_SIZE }, () => ({ visible: false, hit: false })));
-    gameStateRef.current = 'playing';
-    setGameState('playing');
+    setGameOver(false);
+    setGameActive(true);
+
+    moleSpawnRef.current = setInterval(showMole, MOLE_INTERVAL);
 
     gameTimerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
+      setTimeLeft(prev => {
         if (prev <= 1) {
-          endGame();
+          clearInterval(gameTimerRef.current!);
+          clearInterval(moleSpawnRef.current!);
+          moleTimersRef.current.forEach(t => clearTimeout(t));
+          moleTimersRef.current.clear();
+          setMoles(Array(GRID_SIZE).fill(false));
+          molesRef.current = Array(GRID_SIZE).fill(false);
+          setGameActive(false);
+          setGameOver(true);
+          playGameOver();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-
-    moleIntervalRef.current = setInterval(popMole, MOLE_INTERVAL_MS);
-  }, [clearAllTimers, endGame, popMole]);
-
-  const handleWhack = useCallback((idx: number) => {
-    if (gameStateRef.current !== 'playing') return;
-    setMoles((prev) => {
-      if (!prev[idx].visible || prev[idx].hit) return prev;
-      const next = [...prev];
-      next[idx] = { visible: true, hit: true };
-      scoreRef.current += 1;
-      setScore(scoreRef.current);
-      if (moleTimersRef.current[idx]) clearTimeout(moleTimersRef.current[idx]!);
-      moleTimersRef.current[idx] = setTimeout(() => {
-        setMoles((p) => {
-          const n = [...p];
-          n[idx] = { visible: false, hit: false };
-          return n;
-        });
-      }, 300);
-      return next;
-    });
-  }, []);
+  }, [showMole, playGameOver]);
 
   useEffect(() => {
-    return () => clearAllTimers();
-  }, [clearAllTimers]);
+    return () => {
+      moleTimersRef.current.forEach(t => clearTimeout(t));
+      if (gameTimerRef.current) clearInterval(gameTimerRef.current);
+      if (moleSpawnRef.current) clearInterval(moleSpawnRef.current);
+    };
+  }, []);
 
-  const holeColors = [
-    '#ff6a00', '#00e5ff', '#ff2d78',
-    '#00e5ff', '#ff6a00', '#00e5ff',
-    '#ff2d78', '#00e5ff', '#ff6a00',
-  ];
+  const handleWhack = useCallback((index: number) => {
+    if (!gameActive || !molesRef.current[index]) return;
+    const timer = moleTimersRef.current.get(index);
+    if (timer) {
+      clearTimeout(timer);
+      moleTimersRef.current.delete(index);
+    }
+    playWhack();
+    setHitFlash(index);
+    setTimeout(() => setHitFlash(null), 200);
+    setMoles(prev => {
+      const next = [...prev];
+      next[index] = false;
+      molesRef.current = next;
+      return next;
+    });
+    setScore(prev => prev + 1);
+  }, [gameActive, playWhack]);
+
+  const moleEmojis = ['🐭', '🐹', '🐾'];
 
   return (
-    <div className="flex flex-col items-center gap-6 p-4 w-full max-w-lg">
-      <div className="text-center">
-        <h2 className="font-chakra text-3xl font-black neon-text-orange mb-1">Whack-a-Mole</h2>
-        <p className="font-exo text-muted-foreground text-sm">Click the moles before they disappear!</p>
-      </div>
-
-      <div className="flex gap-8 items-center">
+    <div className="flex flex-col items-center gap-6 p-6">
+      <div className="flex items-center gap-8">
         <div className="text-center">
-          <div className="font-chakra text-3xl font-black neon-text-orange">{score}</div>
-          <div className="font-exo text-xs text-muted-foreground uppercase tracking-widest">Score</div>
+          <div className="text-muted-foreground text-xs font-exo uppercase tracking-wider">Score</div>
+          <div className="text-neon-orange font-chakra text-3xl font-bold">{score}</div>
         </div>
         <div className="text-center">
-          <div className={`font-chakra text-3xl font-black ${timeLeft <= 10 ? 'neon-text-pink animate-neon-pulse' : 'neon-text-cyan'}`}>
+          <div className="text-muted-foreground text-xs font-exo uppercase tracking-wider">Time</div>
+          <div className={`font-chakra text-3xl font-bold ${timeLeft <= 5 ? 'text-red-400 animate-pulse' : 'text-neon-cyan'}`}>
             {timeLeft}s
           </div>
-          <div className="font-exo text-xs text-muted-foreground uppercase tracking-widest">Time</div>
         </div>
       </div>
 
-      <div
-        className="grid gap-3 p-4 bg-card border border-border rounded-xl"
-        style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)` }}
-      >
-        {moles.map((mole, idx) => (
+      {!gameActive && !gameOver && (
+        <div className="text-center space-y-3">
+          <p className="text-muted-foreground font-exo">Whack the moles before they disappear!</p>
           <button
-            key={idx}
-            onClick={() => handleWhack(idx)}
-            className="relative w-24 h-24 rounded-full border-4 flex items-center justify-center cursor-pointer transition-all duration-100 select-none"
-            style={{
-              borderColor: holeColors[idx],
-              background: mole.visible
-                ? mole.hit
-                  ? 'oklch(0.72 0.28 340 / 0.3)'
-                  : 'oklch(0.72 0.22 35 / 0.2)'
-                : 'oklch(0.10 0.02 265)',
-              boxShadow: mole.visible
-                ? mole.hit
-                  ? '0 0 20px #ff2d78, inset 0 0 10px #ff2d78'
-                  : `0 0 20px ${holeColors[idx]}, inset 0 0 10px ${holeColors[idx]}`
-                : 'inset 0 4px 12px oklch(0 0 0 / 0.5)',
-              transform: mole.visible && !mole.hit ? 'scale(1.05)' : 'scale(1)',
-            }}
+            onClick={startGame}
+            className="px-8 py-3 bg-neon-orange text-black font-chakra font-bold rounded-lg hover:bg-neon-orange/80 transition-colors"
           >
-            {mole.visible && (
-              <span
-                className="text-4xl select-none"
-                style={{
-                  filter: mole.hit ? 'grayscale(1) opacity(0.5)' : 'none',
-                  transform: mole.hit ? 'rotate(20deg)' : 'none',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {mole.hit ? '💀' : '🐹'}
-              </span>
-            )}
-            {!mole.visible && (
-              <div
-                className="w-12 h-4 rounded-full opacity-40"
-                style={{ background: holeColors[idx] }}
-              />
+            START GAME
+          </button>
+        </div>
+      )}
+
+      {gameOver && (
+        <div className="text-center space-y-3">
+          <div className="text-neon-orange font-chakra text-2xl font-bold">GAME OVER!</div>
+          <div className="text-foreground font-exo text-lg">Final Score: <span className="text-neon-cyan font-bold">{score}</span></div>
+          <button
+            onClick={startGame}
+            className="px-8 py-3 bg-neon-orange text-black font-chakra font-bold rounded-lg hover:bg-neon-orange/80 transition-colors"
+          >
+            PLAY AGAIN
+          </button>
+        </div>
+      )}
+
+      <div className="grid grid-cols-3 gap-4">
+        {moles.map((hasMole, i) => (
+          <button
+            key={i}
+            onClick={() => handleWhack(i)}
+            className={`
+              w-24 h-24 rounded-xl border-2 transition-all duration-100 relative overflow-hidden
+              ${hasMole
+                ? 'bg-amber-900/80 border-neon-orange cursor-pointer hover:scale-95 active:scale-90'
+                : 'bg-card border-border cursor-default'
+              }
+              ${hitFlash === i ? 'bg-neon-orange/40' : ''}
+            `}
+          >
+            <div className={`
+              absolute inset-0 flex items-center justify-center text-4xl
+              transition-transform duration-150
+              ${hasMole ? 'translate-y-0' : 'translate-y-full'}
+            `}>
+              {moleEmojis[i % moleEmojis.length]}
+            </div>
+            {!hasMole && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-12 h-3 bg-border/50 rounded-full" />
+              </div>
             )}
           </button>
         ))}
       </div>
 
-      {gameState === 'idle' && (
-        <button
-          onClick={startGame}
-          className="font-chakra font-bold text-sm uppercase tracking-widest px-8 py-3 rounded-lg bg-neon-orange text-background shadow-neon-orange hover:scale-105 transition-all duration-200"
-        >
-          Start Game
-        </button>
-      )}
-
-      {gameState === 'over' && (
-        <div className="text-center bg-card border border-neon-orange/40 rounded-xl p-6 w-full">
-          <div className="font-chakra text-2xl font-black neon-text-orange mb-2">Time's Up!</div>
-          <div className="font-exo text-muted-foreground mb-1">Final Score</div>
-          <div className="font-chakra text-5xl font-black neon-text-cyan mb-4">{score}</div>
-          <button
-            onClick={startGame}
-            className="font-chakra font-bold text-sm uppercase tracking-widest px-8 py-3 rounded-lg bg-neon-orange text-background shadow-neon-orange hover:scale-105 transition-all duration-200"
-          >
-            Play Again
-          </button>
-        </div>
-      )}
-
-      {gameState === 'idle' && (
-        <div className="text-center font-exo text-xs text-muted-foreground max-w-xs">
-          Moles pop up randomly — click them before they disappear! You have {GAME_DURATION} seconds.
+      {gameActive && (
+        <div className="text-muted-foreground text-sm font-exo">
+          Click the moles to whack them! 🔨
         </div>
       )}
     </div>
